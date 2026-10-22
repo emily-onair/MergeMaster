@@ -1,5 +1,5 @@
 ---
-name: send-report
+name: report-merge
 description: Use this skill when the user wants to report their current branch and latest commit as ready to merge.
 ---
 ## Repository facts (collected automatically)
