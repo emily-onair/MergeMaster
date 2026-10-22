@@ -1,10 +1,32 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "MergeMaster";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Merge Queue</h1>
+
+@if (Model.Reports.Count == 0)
+{
+    <p>No reports yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr><th>#</th><th>Repository</th><th>Branch</th><th>Commit</th><th>Received (UTC)</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.Reports)
+            {
+                <tr>
+                    <td>@report.Id</td>
+                    <td>@report.Repository</td>
+                    <td>@report.Branch</td>
+                    <td><code>@report.CommitSha</code></td>
+                    <td>@report.ReceivedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

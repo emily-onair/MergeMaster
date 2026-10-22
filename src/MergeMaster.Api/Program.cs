@@ -21,7 +21,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapPost("/api/reports", (NewReport input, ReportStore store) =>
+app.MapPost("/api/add", (NewReport input, ReportStore store) =>
 {
     var report = store.Add(input);
     return Results.Created($"/api/reports/{report.Id}", report);
