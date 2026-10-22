@@ -1,0 +1,104 @@
+{
+    "name": "main",
+    "commit": {
+        "sha": "305b552fbf40eff425f7fe89eb011055f500ac09",
+        "node_id": "C_kwDOVTU-TdoAKDMwNWI1NTJmYmY0MGVmZjQyNWY3ZmU4OWViMDExMDU1ZjUwMGFjMDk",
+        "commit": {
+            "author": {
+                "name": "emily-onair",
+                "email": "es@onair.de",
+                "date": "2026-10-22T16:25:55Z"
+            },
+            "committer": {
+                "name": "GitHub",
+                "email": "noreply@github.com",
+                "date": "2026-10-22T16:25:55Z"
+            },
+            "message": "Merge pull request #1 from emily-onair/feature/one\n\nfeature/one test",
+            "tree": {
+                "sha": "1b9daf64d63a82844c9c82cfd35ec05ea196193f",
+                "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/trees/1b9daf64d63a82844c9c82cfd35ec05ea196193f"
+            },
+            "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/commits/305b552fbf40eff425f7fe89eb011055f500ac09",
+            "comment_count": 0,
+            "verification": {
+                "verified": true,
+                "reason": "valid",
+                "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq2jkTCRC1aQ7uu5UhlAAAeg0QAFmMD8ejTt0kSHb0FJZ2T7p6\nABJdxkvCKxBxLtZuJks2qg+QM/I3kFd6UjmF10gPSLQXBjttNG8yao3ILXOc/fqN\n01bKh8YEfYyIB0kOQ3mhaZxks9E8fIs/aE/q2t785gAz+qpSPWqIRLCOJ96RF2NT\nawLUf/L43AEVFYqewjrOTVFZBhOjMKy8O8J7JYft3hs2XDKWHARiRoJxWMfNfvuJ\nJ37x+0x8RAgwLSWSaNjhgwtVBcmiQRaii3BU+KB8gmE8TdONhFKPbaRG2x9KSkCW\n/PVkBPeOh4R23kalbAGO6aHPGyvrMAKPYAV+vGquYLg6rkm2yo+86kH9KW/G3xT/\nKRZAg0pwQu0N6dGBaPvUTnk9W1JgshpV6QFsevGMahBN2aCJV3sPeVE3eo0adfxS\nbBAXjQBcK/lOplGlkeuTYBhs/KC/zeMvYhswQjxstM3FHatrqPGx12Ff4ONEJaOo\n7AcH/PEpDTZb+1/+3BmBEqvN+9fBZDZ/drAMz90C+TWDW7lO+TTWWESnLUTl2bsT\n3wYWgKpPnq91Ths0N2w7z6yQfxdNbvMVjluabGdWn/H5XkitJTI2uHGO8OMe7fUn\ndKjDzmjl+4DQQJT8bfaHt39tM2Woea7GTxuIoC1Z6JF+pc+MgvomKCG8YAx7Oyty\nNQAEtqw29GmxjwJTvoTZ\n=gp7V\n-----END PGP SIGNATURE-----\n",
+                "payload": "tree 1b9daf64d63a82844c9c82cfd35ec05ea196193f\nparent 8500f7d8cee62e46d8fae387e426b17f3f3a6f63\nparent 91f7aa41cc05eedc9be84700087378d6710238d5\nauthor emily-onair <es@onair.de> 1792686355 +0200\ncommitter GitHub <noreply@github.com> 1792686355 +0200\n\nMerge pull request #1 from emily-onair/feature/one\n\nfeature/one test",
+                "verified_at": "2026-10-22T16:25:55Z"
+            }
+        },
+        "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/305b552fbf40eff425f7fe89eb011055f500ac09",
+        "html_url": "https://github.com/emily-onair/MergeMaster/commit/305b552fbf40eff425f7fe89eb011055f500ac09",
+        "comments_url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/305b552fbf40eff425f7fe89eb011055f500ac09/comments",
+        "author": {
+            "login": "emily-onair",
+            "id": 342932826,
+            "node_id": "U_kgDOFHC9Wg",
+            "avatar_url": "https://avatars.githubusercontent.com/u/342932826?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/emily-onair",
+            "html_url": "https://github.com/emily-onair",
+            "followers_url": "https://api.github.com/users/emily-onair/followers",
+            "following_url": "https://api.github.com/users/emily-onair/following{/other_user}",
+            "gists_url": "https://api.github.com/users/emily-onair/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/emily-onair/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/emily-onair/subscriptions",
+            "organizations_url": "https://api.github.com/users/emily-onair/orgs",
+            "repos_url": "https://api.github.com/users/emily-onair/repos",
+            "events_url": "https://api.github.com/users/emily-onair/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/emily-onair/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "web-flow",
+            "id": 19864447,
+            "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+            "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/web-flow",
+            "html_url": "https://github.com/web-flow",
+            "followers_url": "https://api.github.com/users/web-flow/followers",
+            "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+            "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+            "organizations_url": "https://api.github.com/users/web-flow/orgs",
+            "repos_url": "https://api.github.com/users/web-flow/repos",
+            "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/web-flow/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "8500f7d8cee62e46d8fae387e426b17f3f3a6f63",
+                "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/8500f7d8cee62e46d8fae387e426b17f3f3a6f63",
+                "html_url": "https://github.com/emily-onair/MergeMaster/commit/8500f7d8cee62e46d8fae387e426b17f3f3a6f63"
+            },
+            {
+                "sha": "91f7aa41cc05eedc9be84700087378d6710238d5",
+                "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/91f7aa41cc05eedc9be84700087378d6710238d5",
+                "html_url": "https://github.com/emily-onair/MergeMaster/commit/91f7aa41cc05eedc9be84700087378d6710238d5"
+            }
+        ]
+    },
+    "_links": {
+        "self": "https://api.github.com/repos/emily-onair/MergeMaster/branches/main",
+        "html": "https://github.com/emily-onair/MergeMaster/tree/main"
+    },
+    "protected": false,
+    "protection": {
+        "enabled": false,
+        "required_status_checks": {
+            "enforcement_level": "off",
+            "contexts": [],
+            "checks": []
+        }
+    },
+    "protection_url": "https://api.github.com/repos/emily-onair/MergeMaster/branches/main/protection"
+}

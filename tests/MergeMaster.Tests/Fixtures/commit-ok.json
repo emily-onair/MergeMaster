@@ -1,0 +1,125 @@
+{
+    "sha": "046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+    "node_id": "C_kwDOVTU-TdoAKDA0NmM1ZTQwYjNhYjljMjBmYTE1MTk0MGMyNjliNDJmNTRjNmQyZTg",
+    "commit": {
+        "author": {
+            "name": "emily-onair",
+            "email": "es@onair.de",
+            "date": "2026-10-22T10:52:06Z"
+        },
+        "committer": {
+            "name": "emily-onair",
+            "email": "es@onair.de",
+            "date": "2026-10-22T10:52:06Z"
+        },
+        "message": "test report viewable in table",
+        "tree": {
+            "sha": "13019e2ca51e436caf173f15e7753aea60858182",
+            "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/trees/13019e2ca51e436caf173f15e7753aea60858182"
+        },
+        "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/commits/046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+        "comment_count": 0,
+        "verification": {
+            "verified": false,
+            "reason": "unsigned",
+            "signature": null,
+            "payload": null,
+            "verified_at": null
+        }
+    },
+    "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+    "html_url": "https://github.com/emily-onair/MergeMaster/commit/046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+    "comments_url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/comments",
+    "author": {
+        "login": "emily-onair",
+        "id": 342932826,
+        "node_id": "U_kgDOFHC9Wg",
+        "avatar_url": "https://avatars.githubusercontent.com/u/342932826?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/emily-onair",
+        "html_url": "https://github.com/emily-onair",
+        "followers_url": "https://api.github.com/users/emily-onair/followers",
+        "following_url": "https://api.github.com/users/emily-onair/following{/other_user}",
+        "gists_url": "https://api.github.com/users/emily-onair/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/emily-onair/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/emily-onair/subscriptions",
+        "organizations_url": "https://api.github.com/users/emily-onair/orgs",
+        "repos_url": "https://api.github.com/users/emily-onair/repos",
+        "events_url": "https://api.github.com/users/emily-onair/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/emily-onair/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+    },
+    "committer": {
+        "login": "emily-onair",
+        "id": 342932826,
+        "node_id": "U_kgDOFHC9Wg",
+        "avatar_url": "https://avatars.githubusercontent.com/u/342932826?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/emily-onair",
+        "html_url": "https://github.com/emily-onair",
+        "followers_url": "https://api.github.com/users/emily-onair/followers",
+        "following_url": "https://api.github.com/users/emily-onair/following{/other_user}",
+        "gists_url": "https://api.github.com/users/emily-onair/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/emily-onair/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/emily-onair/subscriptions",
+        "organizations_url": "https://api.github.com/users/emily-onair/orgs",
+        "repos_url": "https://api.github.com/users/emily-onair/repos",
+        "events_url": "https://api.github.com/users/emily-onair/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/emily-onair/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+    },
+    "parents": [
+        {
+            "sha": "a59e63f005c09a64bd7516e9654af5c9f4ffd86b",
+            "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/a59e63f005c09a64bd7516e9654af5c9f4ffd86b",
+            "html_url": "https://github.com/emily-onair/MergeMaster/commit/a59e63f005c09a64bd7516e9654af5c9f4ffd86b"
+        }
+    ],
+    "stats": {
+        "total": 44,
+        "additions": 32,
+        "deletions": 12
+    },
+    "files": [
+        {
+            "sha": "d76f44bf3a4c82475ab7a0699a1857c72a63ae32",
+            "filename": "src/MergeMaster.Api/Pages/Index.cshtml",
+            "status": "modified",
+            "additions": 27,
+            "deletions": 5,
+            "changes": 32,
+            "blob_url": "https://github.com/emily-onair/MergeMaster/blob/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml",
+            "raw_url": "https://github.com/emily-onair/MergeMaster/raw/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml",
+            "contents_url": "https://api.github.com/repos/emily-onair/MergeMaster/contents/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml?ref=046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+            "patch": "@@ -1,10 +1,32 @@\n ﻿@page\r\n @model IndexModel\r\n @{\r\n-    ViewData[\"Title\"] = \"Home page\";\r\n+    ViewData[\"Title\"] = \"MergeMaster\";\r\n }\r\n \r\n-<div class=\"text-center\">\r\n-    <h1 class=\"display-4\">Welcome</h1>\r\n-    <p>Learn about <a href=\"https://learn.microsoft.com/aspnet/core\">building Web apps with ASP.NET Core</a>.</p>\r\n-</div>\r\n+<h1>Merge Queue</h1>\r\n+\r\n+@if (Model.Reports.Count == 0)\r\n+{\r\n+    <p>No reports yet.</p>\r\n+}\r\n+else\r\n+{\r\n+    <table class=\"table\">\r\n+        <thead>\r\n+            <tr><th>#</th><th>Repository</th><th>Branch</th><th>Commit</th><th>Received (UTC)</th></tr>\r\n+        </thead>\r\n+        <tbody>\r\n+            @foreach (var report in Model.Reports)\r\n+            {\r\n+                <tr>\r\n+                    <td>@report.Id</td>\r\n+                    <td>@report.Repository</td>\r\n+                    <td>@report.Branch</td>\r\n+                    <td><code>@report.CommitSha</code></td>\r\n+                    <td>@report.ReceivedAt.ToString(\"yyyy-MM-dd HH:mm\")</td>\r\n+                </tr>\r\n+            }\r\n+        </tbody>\r\n+    </table>\r\n+}\n\\ No newline at end of file"
+        },
+        {
+            "sha": "fc41aea9d4ec8095add8802ab463e47710ef6ee8",
+            "filename": "src/MergeMaster.Api/Pages/Index.cshtml.cs",
+            "status": "modified",
+            "additions": 4,
+            "deletions": 6,
+            "changes": 10,
+            "blob_url": "https://github.com/emily-onair/MergeMaster/blob/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml.cs",
+            "raw_url": "https://github.com/emily-onair/MergeMaster/raw/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml.cs",
+            "contents_url": "https://api.github.com/repos/emily-onair/MergeMaster/contents/src%2FMergeMaster.Api%2FPages%2FIndex.cshtml.cs?ref=046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+            "patch": "@@ -1,12 +1,10 @@\n-using Microsoft.AspNetCore.Mvc;\r\n using Microsoft.AspNetCore.Mvc.RazorPages;\r\n \r\n namespace MergeMaster.Api.Pages;\r\n \r\n-public class IndexModel : PageModel\r\n+public sealed class IndexModel(ReportStore store) : PageModel\r\n {\r\n-    public void OnGet()\r\n-    {\r\n+    public IReadOnlyList<Report> Reports { get; private set; } = [];\r\n \r\n-    }\r\n-}\r\n+    public void OnGet() => Reports = store.All();\r\n+}\n\\ No newline at end of file"
+        },
+        {
+            "sha": "669b7b25b5e63bff6604bd9510f95c781c33adf8",
+            "filename": "src/MergeMaster.Api/Program.cs",
+            "status": "modified",
+            "additions": 1,
+            "deletions": 1,
+            "changes": 2,
+            "blob_url": "https://github.com/emily-onair/MergeMaster/blob/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FProgram.cs",
+            "raw_url": "https://github.com/emily-onair/MergeMaster/raw/046c5e40b3ab9c20fa151940c269b42f54c6d2e8/src%2FMergeMaster.Api%2FProgram.cs",
+            "contents_url": "https://api.github.com/repos/emily-onair/MergeMaster/contents/src%2FMergeMaster.Api%2FProgram.cs?ref=046c5e40b3ab9c20fa151940c269b42f54c6d2e8",
+            "patch": "@@ -21,7 +21,7 @@\n \r\n app.UseAuthorization();\r\n \r\n-app.MapPost(\"/api/reports\", (NewReport input, ReportStore store) =>\r\n+app.MapPost(\"/api/add\", (NewReport input, ReportStore store) =>\r\n {\r\n     var report = store.Add(input);\r\n     return Results.Created($\"/api/reports/{report.Id}\", report);\r"
+        }
+    ]
+}

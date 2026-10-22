@@ -1,0 +1,99 @@
+{
+    "name": "feature/one",
+    "commit": {
+        "sha": "91f7aa41cc05eedc9be84700087378d6710238d5",
+        "node_id": "C_kwDOVTU-TdoAKDkxZjdhYTQxY2MwNWVlZGM5YmU4NDcwMDA4NzM3OGQ2NzEwMjM4ZDU",
+        "commit": {
+            "author": {
+                "name": "emily-onair",
+                "email": "es@onair.de",
+                "date": "2026-10-22T16:24:16Z"
+            },
+            "committer": {
+                "name": "emily-onair",
+                "email": "es@onair.de",
+                "date": "2026-10-22T16:24:16Z"
+            },
+            "message": "feature/one test",
+            "tree": {
+                "sha": "1b9daf64d63a82844c9c82cfd35ec05ea196193f",
+                "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/trees/1b9daf64d63a82844c9c82cfd35ec05ea196193f"
+            },
+            "url": "https://api.github.com/repos/emily-onair/MergeMaster/git/commits/91f7aa41cc05eedc9be84700087378d6710238d5",
+            "comment_count": 0,
+            "verification": {
+                "verified": false,
+                "reason": "unsigned",
+                "signature": null,
+                "payload": null,
+                "verified_at": null
+            }
+        },
+        "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/91f7aa41cc05eedc9be84700087378d6710238d5",
+        "html_url": "https://github.com/emily-onair/MergeMaster/commit/91f7aa41cc05eedc9be84700087378d6710238d5",
+        "comments_url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/91f7aa41cc05eedc9be84700087378d6710238d5/comments",
+        "author": {
+            "login": "emily-onair",
+            "id": 342932826,
+            "node_id": "U_kgDOFHC9Wg",
+            "avatar_url": "https://avatars.githubusercontent.com/u/342932826?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/emily-onair",
+            "html_url": "https://github.com/emily-onair",
+            "followers_url": "https://api.github.com/users/emily-onair/followers",
+            "following_url": "https://api.github.com/users/emily-onair/following{/other_user}",
+            "gists_url": "https://api.github.com/users/emily-onair/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/emily-onair/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/emily-onair/subscriptions",
+            "organizations_url": "https://api.github.com/users/emily-onair/orgs",
+            "repos_url": "https://api.github.com/users/emily-onair/repos",
+            "events_url": "https://api.github.com/users/emily-onair/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/emily-onair/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "committer": {
+            "login": "emily-onair",
+            "id": 342932826,
+            "node_id": "U_kgDOFHC9Wg",
+            "avatar_url": "https://avatars.githubusercontent.com/u/342932826?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/emily-onair",
+            "html_url": "https://github.com/emily-onair",
+            "followers_url": "https://api.github.com/users/emily-onair/followers",
+            "following_url": "https://api.github.com/users/emily-onair/following{/other_user}",
+            "gists_url": "https://api.github.com/users/emily-onair/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/emily-onair/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/emily-onair/subscriptions",
+            "organizations_url": "https://api.github.com/users/emily-onair/orgs",
+            "repos_url": "https://api.github.com/users/emily-onair/repos",
+            "events_url": "https://api.github.com/users/emily-onair/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/emily-onair/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+        },
+        "parents": [
+            {
+                "sha": "8500f7d8cee62e46d8fae387e426b17f3f3a6f63",
+                "url": "https://api.github.com/repos/emily-onair/MergeMaster/commits/8500f7d8cee62e46d8fae387e426b17f3f3a6f63",
+                "html_url": "https://github.com/emily-onair/MergeMaster/commit/8500f7d8cee62e46d8fae387e426b17f3f3a6f63"
+            }
+        ]
+    },
+    "_links": {
+        "self": "https://api.github.com/repos/emily-onair/MergeMaster/branches/feature/one",
+        "html": "https://github.com/emily-onair/MergeMaster/tree/feature/one"
+    },
+    "protected": false,
+    "protection": {
+        "enabled": false,
+        "required_status_checks": {
+            "enforcement_level": "off",
+            "contexts": [],
+            "checks": []
+        }
+    },
+    "protection_url": "https://api.github.com/repos/emily-onair/MergeMaster/branches/feature/one/protection"
+}
