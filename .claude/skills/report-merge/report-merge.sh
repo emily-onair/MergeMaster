@@ -9,19 +9,11 @@ NOTES="$3"
 REPO_NAME=$(basename -s .git "$(git config --get remote.origin.url)")
 SOURCE_BRANCH=$(git branch --show-current)
 COMMIT_SHA=$(git rev-parse HEAD)
-COMMIT_MESSAGE=$(git log -1 --format="%B")
-COMMIT_DATE=$(git log -1 --format="%cd" --date=iso-strict)
-AUTHOR_NAME=$(git log -1 --format="%an")
-AUTHOR_EMAIL=$(git log -1 --format="%ae")
 
 JSON_DATA="{
     \"Repository\": \"$REPO_NAME\",
     \"Branch\": \"$SOURCE_BRANCH\",
     \"CommitSha\": \"$COMMIT_SHA\",
-    \"CommitMessage\": \"$COMMIT_MESSAGE\",
-    \"commitDate\": \"$COMMIT_DATE\",
-    \"AuthorName\": \"$AUTHOR_NAME\",
-    \"AuthorEmail\": \"$AUTHOR_EMAIL\",
     \"Urgent\": $URGENT,
     \"Tags\": \"$TAGS\""
 

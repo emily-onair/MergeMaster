@@ -16,7 +16,7 @@ description: Use this skill when the user wants to report their current branch a
 
 3. Ask the user if they would consider the request "urgent". Interpret their answer as `true` or `false` and set that boolean as the 1st argument when running the script. 
 
-4. Use the following tags to classify the commits and changed files in "Repository facts". If they don't make the purpose clear, open the relevant changed files to understand them. Choose every tag that applies. Pass the confirmed tags as the 2nd argument when running the script, as one comma-separated string with no spaces, in quotes. E.g. "bugfix,docs".
+4. Use the following tags to classify the commits and changed files in "Repository facts". If those are empty, classify the last commit using `git show --stat HEAD`. If they don't make the purpose clear, open the relevant changed files to understand them. Choose every tag that applies yourself; do not ask the user to confirm them. Pass the chosen tags as the 2nd argument when running the script, as one comma-separated string with no spaces, in quotes. E.g. "bugfix,docs".
 - bugfix: fixes a bug found by investigation, not urgent.
 - hotfix: an urgent fix for a production problem.
 - feature: adds a new capability: a node, an integration, a page or a service function.
@@ -24,9 +24,10 @@ description: Use this skill when the user wants to report their current branch a
 - security: touches encryption, TLS certificates, license checks, inter-service calls or Service.Control.
 - chore: maintenance that changes no behavior: dependency updates, build scripts, renames inside one file.
 - docs: Documentation for people: READMEs, docs/, changelog wording.
+- claude: changes how Claude works in this repo: CLAUDE.md, anything under .claude/ (skills, agents, commands, hooks, settings) or .mcp.json. Use this instead of feature, chore or docs for those files. Add other tags only for changes outside them in the same commit.
 - other: only use this tag when **no other tags** apply.
 
 
 5. Once you have the details, pass them as arguments to the companion script `.claude/skills/report-merge/report-merge.sh`.
 
-4. Display the API's response to the user.
+6. Display the API's response to the user.
