@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MergeMaster.Api/MergeMaster.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MergeMaster.Tests/MergeMaster.Tests.csproj" />
+  </Folder>
+</Solution>
