@@ -1,11 +1,13 @@
+using MergeMaster.Api;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<ReportStore>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -18,6 +20,13 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapPost("/api/reports", (NewReport input, ReportStore store) =>
+{
+    var report = store.Add(input);
+    return Results.Created($"/api/reports/{report.Id}", report);
+});
+app.MapGet("/api/reports", (ReportStore store) => store.All());
 
 app.MapStaticAssets();
 app.MapRazorPages()
