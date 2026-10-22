@@ -1,0 +1,4 @@
+# Applies only to this folder (the report-merge skill).
+# Shell scripts must keep LF line endings, or bash fails on Windows (Git Bash / WSL)
+# with "$'\r': command not found" when Git converts them to CRLF on checkout.
+*.sh text eol=lf
