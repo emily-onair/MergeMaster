@@ -20,8 +20,17 @@ public sealed class GitHubApi(HttpClient http)
         var json = await response.Content.ReadFromJsonAsync<CompareResult>(Json, ct);
         return json is not null && (json.Status == "behind" || json.Status == "identical");
     }
+
+    public async Task<CommitResult?> GetReportDetails(string ownerRepo, string commit, CancellationToken ct)
+    {
+        using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadFromJsonAsync<CommitResult>(Json, ct);
+        return json;
+    }
 }
 
-
-
 public sealed record CompareResult(string Status, int AheadBy, int BehindBy);
+public sealed record CommitAuthor(string Name, string Email, DateTimeOffset Date);
+public sealed record CommitResult(CommitAuthor Author, string Message);

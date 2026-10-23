@@ -15,7 +15,13 @@ else
 {
     <table class="table">
         <thead>
-            <tr><th>#</th><th>Repository</th><th>Branch</th><th>Commit</th><th>Received (UTC)</th></tr>
+            <tr>
+                <th>#</th>
+                <th>Repository</th>
+                <th>Branch</th>
+                <th>Commit</th>
+                <th>Received (UTC)</th>
+            </tr>
         </thead>
         <tbody>
             @foreach (var report in Model.Reports)
@@ -25,7 +31,7 @@ else
                     <td>@report.Repository</td>
                     <td>@report.Branch</td>
                     <td><code>@report.CommitSha</code></td>
-                    <td>@report.ReceivedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@report.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                 </tr>
             }
         </tbody>

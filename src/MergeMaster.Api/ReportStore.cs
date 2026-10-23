@@ -14,6 +14,7 @@ public sealed record NewReport(
     string Branch, 
     string CommitSha,
     string CommitMessage,
+    DateTimeOffset CommitDate,
     string AuthorName,
     string AuthorEmail,
     bool Urgent,
@@ -23,17 +24,19 @@ public sealed record NewReport(
 
 public sealed record Report(
     int Id, 
-    bool Synced,
-    DateTimeOffset ReceivedAt,
+    // bool Synced,
+    DateTimeOffset CreatedAt,
     string Repository, 
     string Branch, 
     string CommitSha,
     string CommitMessage,
+    DateTimeOffset CommitDate,
     string AuthorName,
     string AuthorEmail,
     bool Urgent,
     string Tags,
-    string? Notes
+    string? Notes,
+    DateTimeOffset? UpdatedAt
 );
 
 // Lives as long as the app (singleton), so it is shared by all requests
@@ -49,17 +52,18 @@ public sealed class ReportStore
         {
             var report = new Report(
                 _reports.Count + 1,
-                false,
                 DateTimeOffset.UtcNow,
                 input.Repository, 
                 input.Branch, 
                 input.CommitSha,
                 input.CommitMessage,
+                input.CommitDate,
                 input.AuthorName,
                 input.AuthorEmail,
                 input.Urgent,
                 input.Tags,
-                input.Notes
+                input.Notes,
+                null
             );
             _reports.Add(report);
             return report;
