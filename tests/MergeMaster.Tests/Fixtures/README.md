@@ -25,3 +25,4 @@ https://api.github.com/repos/OWNER/REPO/commits/SHA
 
 - compare-in-branch : 200 OK (status => behind/identical)
 - compare-not-in-branch : 200 OK (status => ahead/diverged)
+- compare-not-found : 404 Not Found (one or both compare objects not found)
