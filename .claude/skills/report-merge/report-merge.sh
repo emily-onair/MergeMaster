@@ -1,16 +1,22 @@
 #!/bin/bash
 
-API_URL="http://localhost:5062/api/add"
+API_URL="http://localhost:5062/api/reports/add"
 
 URGENT=$1
 TAGS="$2"
 NOTES="$3"
 
-REPO_NAME=$(basename -s .git "$(git config --get remote.origin.url)")
+REMOTE_URL=$(git config --get remote.origin.url)
+OWNER_REPO=$(echo "$REMOTE_URL" | sed -n 's|.*[:/]\([^/]*\)/\([^/]*\)\.git$|\1/\2|p')
+REPO_NAME=$(basename -s .git "$REMOTE_URL")
 SOURCE_BRANCH=$(git branch --show-current)
 COMMIT_SHA=$(git rev-parse HEAD)
 
+echo "REPO_NAME={$REPO_NAME}"
+echo "OWNER_REPO={$OWNER_REPO}"
+
 JSON_DATA="{
+    \"OwnerRepo\": \"$OWNER_REPO\",
     \"Repository\": \"$REPO_NAME\",
     \"Branch\": \"$SOURCE_BRANCH\",
     \"CommitSha\": \"$COMMIT_SHA\",

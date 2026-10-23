@@ -1,12 +1,32 @@
+using System.Net.Http.Headers;
 using MergeMaster.Api;
+using MergeMaster.Api.Github;
+using MergeMaster.Api.GitHub;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddOptions<GitHubOptions>()
+    .Bind(builder.Configuration.GetSection(GitHubOptions.Section))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
+{
+    var gh = sp.GetRequiredService<IOptions<GitHubOptions>>().Value;
+    http.BaseAddress = new Uri(gh.BaseUrl);
+    http.DefaultRequestHeaders.UserAgent.ParseAdd("MergeMaster/1.0"); // GitHub requires user agent
+    http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+    http.DefaultRequestHeaders.Add("X-GitHub-Api-Version", gh.ApiVersion);
+    http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", gh.Token);
+}).AddStandardResilienceHandler();
 
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<ReportStore>();
 
 var app = builder.Build();
-
+app.MapControllers();
 
 if (!app.Environment.IsDevelopment())
 {

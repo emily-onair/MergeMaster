@@ -1,6 +1,14 @@
 namespace MergeMaster.Api;
 
-// Placeholder shapes. Replace once your design note defines the real report.
+public sealed record AddReportRequestBody(
+    string OwnerRepo,
+    string Repository,
+    string Branch,
+    string CommitSha,
+    bool Urgent,
+    string Tags,
+    string? Notes
+);
 public sealed record NewReport(
     string Repository, 
     string Branch, 
