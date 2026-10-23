@@ -17,12 +17,12 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         if (commitOnBranch is null)
             return Problem(statusCode: 404, detail: "GitHub could not find branch or commit");
         if (commitOnBranch is false)
-            return Problem(statusCode: 422, detail: "This commit does not exist on the branch");
+            return Problem(statusCode: 400, detail: "This commit does not exist on the branch");
         var alreadyMerged = await github.CommitOnBranchAsync(body.OwnerRepo, "main", body.CommitSha, ct);
         if (alreadyMerged is null)
             return Problem(statusCode: 404, detail: "GitHub could not find main branch");
         if (alreadyMerged is true)
-            return Problem(statusCode: 422, detail: "This commit has already been merged into main");
+            return Problem(statusCode: 400, detail: "This commit has already been merged into main");
         var missingDetails = await github.GetReportDetails(body.OwnerRepo, body.CommitSha, ct);
         if (missingDetails is null) {
             return Problem(statusCode: 404, detail: "GitHub could not provide details");
@@ -39,8 +39,19 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
             body.Tags,
             body.Notes
         );
+        var branchExists = store.ReportForBranchExists(body.Branch);
+        if (branchExists)
+        {
+            var isDuplicate = store.ReportIsDuplicate(body.CommitSha);
+            if (isDuplicate)
+                return Problem(statusCode: 400, detail: "A report already exists for this commit on this branch");
+            var updateSuccessful = store.ReportUpdated(newReport);
+            return updateSuccessful
+                ? Ok($"Existing report for branch {newReport.Branch} updated")
+                : Problem(statusCode: 500, detail: "Record exists for this branch, but could not be updated");
+        }
         store.Add(newReport);
-        return Ok("New report created");
+        return Ok("New report successfully created");
     }
 }
 
