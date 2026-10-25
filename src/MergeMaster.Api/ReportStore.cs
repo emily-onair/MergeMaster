@@ -1,4 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
+using MergeMaster.Api.Controllers;
 
 namespace MergeMaster.Api;
 
@@ -6,6 +7,7 @@ public sealed record AddReportRequestBody(
     string OwnerRepo,
     string Repository,
     string Branch,
+    string AuthorName,
     string CommitSha,
     bool Urgent,
     string Tags,
@@ -109,6 +111,14 @@ public sealed class ReportStore
         lock (_lock)
         {
             return [.. _reports];
+        }
+    }
+
+    public IReadOnlyList<Report> UrgentOnly()
+    {
+        lock (_lock)
+        {
+            return [.. _reports.Where(r => r.Urgent == true)];
         }
     }
 }

@@ -13,12 +13,12 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
     {
         Console.WriteLine($"REQUEST BODY: {body}");
         // TODO: handle no github connection
-        var commitOnBranch = await github.CommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
+        var commitOnBranch = await github.IsCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
         if (commitOnBranch is null)
             return Problem(statusCode: 404, detail: "GitHub could not find branch or commit");
         if (commitOnBranch is false)
             return Problem(statusCode: 400, detail: "This commit does not exist on the branch");
-        var alreadyMerged = await github.CommitOnBranchAsync(body.OwnerRepo, "main", body.CommitSha, ct);
+        var alreadyMerged = await github.IsCommitOnBranchAsync(body.OwnerRepo, "main", body.CommitSha, ct);
         if (alreadyMerged is null)
             return Problem(statusCode: 404, detail: "GitHub could not find main branch");
         if (alreadyMerged is true)
@@ -31,10 +31,10 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
             body.Repository, 
             body.Branch, 
             body.CommitSha,
-            missingDetails.Message,
-            missingDetails.Author.Date,
-            missingDetails.Author.Name,
-            missingDetails.Author.Email,
+            missingDetails.Commit.Message,
+            missingDetails.Commit.Author.Date,
+            body.AuthorName,
+            missingDetails.Commit.Author.Email,
             body.Urgent,
             body.Tags,
             body.Notes

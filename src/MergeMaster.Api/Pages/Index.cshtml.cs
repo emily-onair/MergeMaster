@@ -1,10 +1,23 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MergeMaster.Api.Pages;
 
 public sealed class IndexModel(ReportStore store) : PageModel
 {
+    [BindProperty(SupportsGet = true)]
+    public bool UrgentOnly { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public bool Descending { get; set; }
+    
     public IReadOnlyList<Report> Reports { get; private set; } = [];
 
-    public void OnGet() => Reports = store.All();
+    public void OnGet()
+    {
+        var list = UrgentOnly ? store.UrgentOnly() : store.All();
+        var sorted = Descending  ? list.OrderByDescending(r => r.CreatedAt)
+                                 : list.OrderBy(r => r.CreatedAt);
+        Reports = [.. sorted];
+    } 
 }

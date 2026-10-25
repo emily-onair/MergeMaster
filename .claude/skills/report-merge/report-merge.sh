@@ -11,6 +11,7 @@ OWNER_REPO=$(echo "$REMOTE_URL" | sed -n 's|.*[:/]\([^/]*\)/\([^/]*\)\.git$|\1/\
 REPO_NAME=$(basename -s .git "$REMOTE_URL")
 SOURCE_BRANCH=$(git branch --show-current)
 COMMIT_SHA=$(git rev-parse HEAD)
+AUTHOR_NAME=$(git log -1 --format="%an")
 
 echo "REPO_NAME={$REPO_NAME}"
 echo "OWNER_REPO={$OWNER_REPO}"
@@ -20,6 +21,7 @@ JSON_DATA="{
     \"Repository\": \"$REPO_NAME\",
     \"Branch\": \"$SOURCE_BRANCH\",
     \"CommitSha\": \"$COMMIT_SHA\",
+    \"AuthorName\": \"$AUTHOR_NAME\",
     \"Urgent\": $URGENT,
     \"Tags\": \"$TAGS\""
 
