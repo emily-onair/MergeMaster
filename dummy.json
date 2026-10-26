@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "createdAt": "2026-10-25T18:50:54.482071+00:00",
+        "repository": "TestRepo",
+        "branch": "feature/four",
+        "commitSha": "71d975788ef12bb569ff2fdfed9afc0c3682258f",
+        "commitMessage": "this is feature four",
+        "commitDate": "2026-10-25T18:49:26+00:00",
+        "authorName": "emily-onair",
+        "authorEmail": "es@onair.de",
+        "urgent": false,
+        "tags": "bugfix,feature",
+        "notes": null,
+        "updatedAt": null
+    },
+    {
+        "id": 2,
+        "createdAt": "2026-10-25T18:51:41.085726+00:00",
+        "repository": "TestRepo",
+        "branch": "feature/three",
+        "commitSha": "a1ab251a288429a847a194e1ff1e806c562916d2",
+        "commitMessage": "this is feature three",
+        "commitDate": "2026-10-25T16:25:33+00:00",
+        "authorName": "emily-onair",
+        "authorEmail": "es@onair.de",
+        "urgent": true,
+        "tags": "hotfix,bugfix",
+        "notes": null,
+        "updatedAt": null
+    },
+    {
+        "id": 3,
+        "createdAt": "2026-10-25T18:52:16.430734+00:00",
+        "repository": "TestRepo",
+        "branch": "feature/two",
+        "commitSha": "04a62fd421fb531d0c980c2d119878cb056cba2b",
+        "commitMessage": "skill files added for testing",
+        "commitDate": "2026-10-25T15:53:07+00:00",
+        "authorName": "emily-onair",
+        "authorEmail": "es@onair.de",
+        "urgent": false,
+        "tags": "agents,bugfix",
+        "notes": null,
+        "updatedAt": null
+    },
+    {
+        "id": 4,
+        "createdAt": "2026-10-26T14:15:34.882021+00:00",
+        "repository": "TestRepo",
+        "branch": "feature/one",
+        "commitSha": "dba99229fe5e5910488ebcf1d5f03f29a1b5542c",
+        "commitMessage": "script added",
+        "commitDate": "2026-10-26T14:13:39+00:00",
+        "authorName": "emily-onair",
+        "authorEmail": "es@onair.de",
+        "urgent": false,
+        "tags": "feature",
+        "notes": null,
+        "updatedAt": null
+    }
+]

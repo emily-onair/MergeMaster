@@ -8,6 +8,15 @@ public sealed class ReportStore
     private readonly Lock _lock = new();
     private readonly List<Report> _reports = [];
 
+    // Loads existing reports as-is (keeps their Ids and dates). Dev only.
+    public void Seed(IEnumerable<Report> reports)
+    {
+        lock (_lock)
+        {
+            _reports.AddRange(reports);
+        }
+    }
+
     public Report Add(NewReport input)
     {
         lock (_lock)

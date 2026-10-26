@@ -1,0 +1,7 @@
+root = true
+
+[*.cs]
+# Warn when a namespace doesn't match its folder
+dotnet_diagnostic.IDE0130.severity = warning
+# Make new files use the one-line "namespace X;" style
+csharp_style_namespace_declarations = file_scoped:warning
