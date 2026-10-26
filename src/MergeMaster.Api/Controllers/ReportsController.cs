@@ -1,6 +1,10 @@
 
 using Microsoft.AspNetCore.Mvc;
-using MergeMaster.Api.Github;
+
+using MergeMaster.Api.Services.GitHub;
+using MergeMaster.Api.Data;
+using MergeMaster.Api.Models.Requests;
+using MergeMaster.Api.Models;
 
 namespace MergeMaster.Api.Controllers;
 

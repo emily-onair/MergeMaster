@@ -1,48 +1,5 @@
-using System.Security.Cryptography.X509Certificates;
-using MergeMaster.Api.Controllers;
-
-namespace MergeMaster.Api;
-
-public sealed record AddReportRequestBody(
-    string OwnerRepo,
-    string Repository,
-    string Branch,
-    string AuthorName,
-    string CommitSha,
-    bool Urgent,
-    string Tags,
-    string? Notes
-);
-public sealed record NewReport(
-    string Repository, 
-    string Branch, 
-    string CommitSha,
-    string CommitMessage,
-    DateTimeOffset CommitDate,
-    string AuthorName,
-    string AuthorEmail,
-    bool Urgent,
-    string Tags,
-    string? Notes
-);
-
-public sealed class Report
-{
-    public int Id { get; init; } 
-    // bool Synced,
-    public DateTimeOffset CreatedAt { get; init; }
-    public string Repository { get; init; } = "";
-    public string Branch { get; init; } = ""; 
-    public string CommitSha { get; set; } = "";
-    public string CommitMessage { get; set; } = "";
-    public DateTimeOffset CommitDate { get; set; }
-    public string AuthorName { get; set; } = "";
-    public string AuthorEmail { get; set; } = "";
-    public bool Urgent { get; set; }
-    public string Tags { get; set; } = "";
-    public string? Notes { get; set; }
-    public DateTimeOffset? UpdatedAt { get; set; }
-};
+namespace MergeMaster.Api.Data;
+using MergeMaster.Api.Models;
 
 // Lives as long as the app (singleton), so it is shared by all requests
 // and needs a lock. Chapter 6 replaces this with EF Core.

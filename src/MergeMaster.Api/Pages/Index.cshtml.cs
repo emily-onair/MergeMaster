@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MergeMaster.Api.Pages;
+using MergeMaster.Api.Data;
+using MergeMaster.Api.Models;
 
 public sealed class IndexModel(ReportStore store) : PageModel
 {

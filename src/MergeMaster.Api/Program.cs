@@ -1,8 +1,8 @@
 using System.Net.Http.Headers;
-using MergeMaster.Api;
-using MergeMaster.Api.Github;
-using MergeMaster.Api.GitHub;
 using Microsoft.Extensions.Options;
+
+using MergeMaster.Api.Data;
+using MergeMaster.Api.Services.GitHub;
 
 var builder = WebApplication.CreateBuilder(args);
 

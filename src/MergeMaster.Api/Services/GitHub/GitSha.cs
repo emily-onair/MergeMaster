@@ -1,4 +1,4 @@
-namespace MergeMaster.Api.GitHub;
+namespace MergeMaster.Api.Services.GitHub;
 
 public static class GitSha
 {

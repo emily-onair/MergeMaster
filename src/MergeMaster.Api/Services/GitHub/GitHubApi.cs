@@ -1,8 +1,8 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace MergeMaster.Api.Github;
+namespace MergeMaster.Api.Services.GitHub;
+using MergeMaster.Api.Services.GitHub.Models;
 
 public sealed class GitHubApi(HttpClient http)
 {
@@ -17,22 +17,16 @@ public sealed class GitHubApi(HttpClient http)
         using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/{branch}...{commit}", ct);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadFromJsonAsync<CompareResult>(Json, ct);
+        var json = await response.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
         return json is not null && (json.Status == "behind" || json.Status == "identical");
     }
 
-    public async Task<CommitResult?> GetReportDetails(string ownerRepo, string commit, CancellationToken ct)
+    public async Task<ResultCommit?> GetReportDetails(string ownerRepo, string commit, CancellationToken ct)
     {
         using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadFromJsonAsync<CommitResult>(Json, ct);
+        var json = await response.Content.ReadFromJsonAsync<ResultCommit>(Json, ct);
         return json;
     }
 }
-
-public sealed record CompareResult(string Status, int AheadBy, int BehindBy);
-public sealed record CommitAuthor(string Name, string Email, DateTimeOffset Date);
-public sealed record Commit(CommitAuthor Author, string Message);
-
-public sealed record CommitResult(Commit Commit);

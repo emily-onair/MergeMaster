@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MergeMaster.Api.GitHub;
+namespace MergeMaster.Api.Services.GitHub;
 
 public sealed class GitHubOptions
 {
