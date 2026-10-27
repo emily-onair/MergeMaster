@@ -4,11 +4,12 @@ public sealed record NewReport(
     string Repository, 
     string Branch, 
     string CommitSha,
-    string CommitMessage,
-    DateTimeOffset CommitDate,
     string AuthorName,
-    string AuthorEmail,
     bool Urgent,
     string Tags,
-    string? Notes
+    bool Validated = false,
+    string? AuthorEmail = null,
+    DateTimeOffset? CommitDate = null,
+    string? CommitMessage = null,
+    string? Notes = null
 );

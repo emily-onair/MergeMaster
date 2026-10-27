@@ -28,37 +28,38 @@ public sealed class ReportStore
                 Repository = input.Repository, 
                 Branch = input.Branch, 
                 CommitSha = input.CommitSha,
-                CommitMessage = input.CommitMessage,
-                CommitDate = input.CommitDate,
+                CommitMessage = input.CommitMessage ?? "",
+                CommitDate = input.CommitDate ?? default,
                 AuthorName = input.AuthorName,
-                AuthorEmail = input.AuthorEmail,
+                AuthorEmail = input.AuthorEmail ?? "",
                 Urgent = input.Urgent,
                 Tags = input.Tags,
                 Notes = input.Notes,
-                UpdatedAt = null
+                UpdatedAt = null,
+                Validated = input.Validated
             };
             _reports.Add(report);
             return report;
         }
     }
 
-    public bool ReportUpdated(NewReport newReport)
-    {
-        var report = _reports.Find(r => r.Branch == newReport.Branch);
-        if (report is not null)
-        {
-            report.CommitSha = newReport.CommitSha;
-            report.CommitMessage = newReport.CommitMessage;
-            report.CommitDate = newReport.CommitDate;
-            report.AuthorName = newReport.AuthorName;
-            report.AuthorEmail = newReport.AuthorEmail;
-            report.Urgent = newReport.Urgent;
-            report.Tags = newReport.Tags;
-            report.UpdatedAt = DateTimeOffset.UtcNow;
-            return true;
-        }
-        return false;
-    }
+    // public bool ReportUpdated(NewReport newReport)
+    // {
+    //     var report = _reports.Find(r => r.Branch == newReport.Branch);
+    //     if (report is not null)
+    //     {
+    //         report.CommitSha = newReport.CommitSha;
+    //         report.CommitMessage = newReport.CommitMessage;
+    //         report.CommitDate = newReport.CommitDate;
+    //         report.AuthorName = newReport.AuthorName;
+    //         report.AuthorEmail = newReport.AuthorEmail;
+    //         report.Urgent = newReport.Urgent;
+    //         report.Tags = newReport.Tags;
+    //         report.UpdatedAt = DateTimeOffset.UtcNow;
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public bool ReportForBranchExists(string branch)
     {

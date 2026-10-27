@@ -16,4 +16,5 @@ public sealed class Report
     public string Tags { get; set; } = "";
     public string? Notes { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public bool Validated { get; set; }
 };
