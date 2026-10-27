@@ -22,7 +22,8 @@
 }
 else
 {
-    <div class="table-responsive">
+    // larger screens
+    <div class="table-responsive d-none d-sm-block">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -66,15 +67,26 @@ else
                     <tr>
                         <td class="p-0" colspan="6">
                             <div id="accordion_@(report.Id)" class="collapse p-2">
+                                <div class="pb-2">
+                                    @foreach (var category in report.Tags.Split(","))
+                                    {
+                                        var cssClass = Model.CategoryClasses.TryGetValue(category, out var foundCat) 
+                                            ? foundCat : "text-bg-secondary";
+
+                                        <span class="badge @cssClass">@category</span>
+                                    }
+                                </div>
                                 <p>@report.CommitMessage</p>
                                 <dl class="row row-cols-auto font-monospace small">
                                     <dt class="col-3 text-muted">SHA</dt>
                                     <dd 
                                         class="col-9 text-break m-0" 
                                         title="click to copy" 
-                                        onclick=copyToClipboard(this.textContent)>@report.CommitSha</dd>
+                                        onclick=copyToClipboard('@report.CommitSha')>@report.CommitSha</dd>
                                     <dt class="col-3 text-muted">Author</dt>
-                                    <dd class="col-9 text-break m-0">@report.AuthorName <@report.AuthorEmail></></dd>
+                                    <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
+                                    <dt class="col-3 text-muted">Committed</dt>
+                                    <dd class="col-9 text-break m-0">@report.CommitDate.ToString("dd MMM, HH:mm")</dd>
                                 </dl>
                             </div>
                         </td>
@@ -83,6 +95,44 @@ else
             </tbody>
         </table>
     </div>
+
+    // small screens
+    <div class="d-block d-sm-none d-flex flex-column align-items-center gap-2 mt-4">
+        @foreach (var report in Model.Reports)
+        {
+            <div class="card" style="width: 95%;">
+                <div class="card-body">
+                    <div class="pb-2 d-flex align-items-baseline justify-content-between">
+                        <div>
+                            @foreach (var category in report.Tags.Split(","))
+                            {
+                                var cssClass = Model.CategoryClasses.TryGetValue(category, out var foundCat) 
+                                    ? foundCat : "text-bg-secondary";
+
+                                <span class="badge @cssClass">@category</span>
+                            }
+                        </div>
+                        <i class="card-subtitle text-muted">@report.CreatedAt.ToString("dd MMM, HH:mm")</i>
+                    </div>
+                    <h5 class="card-title">@report.Branch</h5>
+                    <h6 
+                        class="card-subtitle mb-2 text-muted" 
+                        title="click to copy"
+                        onclick=copyToClipboard('@report.CommitSha')>
+                            @report.CommitSha.Substring(0, 5)
+                    </h6>
+                    <p class="card-text">@report.CommitMessage</p>
+                    <dl class="row row-cols-auto font-monospace small">
+                        <dt class="col-3 text-muted">Author</dt>
+                        <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
+                        <dt class="col-3 text-muted">Date</dt>
+                        <dd class="col-9 text-break m-0">@report.CommitDate.ToString("dd MMM, HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+        }
+    </div>
+
 
     <script>
         async function copyToClipboard(text) {

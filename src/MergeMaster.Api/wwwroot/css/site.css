@@ -29,3 +29,8 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.claude {
+  background-color: rgb(255, 141, 11);
+  color: #000000;
+}

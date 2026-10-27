@@ -15,6 +15,19 @@ public sealed class IndexModel(ReportStore store) : PageModel
     
     public IReadOnlyList<Report> Reports { get; private set; } = [];
 
+    public Dictionary<string, string> CategoryClasses { get; } = new()
+    {
+        ["bugfix"] = "text-bg-success",
+        ["hotfix"] = "text-bg-danger",
+        ["feature"] = "text-bg-primary",
+        ["extend"] = "text-bg-info",
+        ["security"] = "text-bg-security",
+        ["chore"] = "text-bg-secondary",
+        ["docs"] = "text-bg-light",
+        ["claude"] = "claude",
+        ["other"] = "text-bg-dark"
+    };
+
     public void OnGet()
     {
         var list = UrgentOnly ? store.UrgentOnly() : store.All();
