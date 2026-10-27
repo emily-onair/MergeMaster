@@ -43,30 +43,6 @@ public sealed class ReportStore
         }
     }
 
-    // public bool ReportUpdated(NewReport newReport)
-    // {
-    //     var report = _reports.Find(r => r.Branch == newReport.Branch);
-    //     if (report is not null)
-    //     {
-    //         report.CommitSha = newReport.CommitSha;
-    //         report.CommitMessage = newReport.CommitMessage;
-    //         report.CommitDate = newReport.CommitDate;
-    //         report.AuthorName = newReport.AuthorName;
-    //         report.AuthorEmail = newReport.AuthorEmail;
-    //         report.Urgent = newReport.Urgent;
-    //         report.Tags = newReport.Tags;
-    //         report.UpdatedAt = DateTimeOffset.UtcNow;
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    public bool ReportForBranchExists(string branch)
-    {
-        var inList = _reports.Count(r => r.Branch == branch);
-        return inList > 0;
-    }
-
     public bool ReportIsDuplicate(string commit)
     {
         var inList = _reports.Count(r => r.CommitSha == commit);
@@ -81,11 +57,30 @@ public sealed class ReportStore
         }
     }
 
+    public Report? FindById(int id)
+    {
+        lock (_lock)
+        {
+            return _reports.Find(r => r.Id == id);
+        }
+    }
+
     public IReadOnlyList<Report> UrgentOnly()
     {
         lock (_lock)
         {
             return [.. _reports.Where(r => r.Urgent == true)];
+        }
+    }
+
+    public bool Delete(int id)
+    {
+        lock (_lock)
+        {
+            var toDelete = FindById(id);
+            if (toDelete is not null)
+                return _reports.Remove(toDelete);
+            return false;
         }
     }
 }

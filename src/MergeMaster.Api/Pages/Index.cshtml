@@ -40,6 +40,7 @@ else
                         </a>
                     </th>
                     <th>By</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -56,11 +57,25 @@ else
                         </td>
                         <td>@report.CreatedAt.ToString("dd MMM, HH:mm")</td>
                         <td>@report.AuthorName</td>
+                        <td>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@report.Id">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="p-0" colspan="5">
+                        <td class="p-0" colspan="6">
                             <div id="accordion_@(report.Id)" class="collapse p-2">
                                 <p>@report.CommitMessage</p>
+                                <dl class="row row-cols-auto font-monospace small">
+                                    <dt class="col-3 text-muted">SHA</dt>
+                                    <dd 
+                                        class="col-9 text-break m-0" 
+                                        title="click to copy" 
+                                        onclick=copyToClipboard(this.textContent)>@report.CommitSha</dd>
+                                    <dt class="col-3 text-muted">Author</dt>
+                                    <dd class="col-9 text-break m-0">@report.AuthorName <@report.AuthorEmail></></dd>
+                                </dl>
                             </div>
                         </td>
                     </tr>
@@ -68,4 +83,14 @@ else
             </tbody>
         </table>
     </div>
+
+    <script>
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (err) {
+                console.error("Failed to copy: ", err);
+            }
+        }
+    </script>
 }

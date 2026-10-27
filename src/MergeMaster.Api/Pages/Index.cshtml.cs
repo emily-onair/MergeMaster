@@ -22,4 +22,11 @@ public sealed class IndexModel(ReportStore store) : PageModel
                                  : list.OrderBy(r => r.CreatedAt);
         Reports = [.. sorted];
     } 
+
+    public IActionResult OnPostDelete(int id)
+    {
+        Console.WriteLine("ID IS :" + id);
+        store.Delete(id);
+        return RedirectToPage(new { UrgentOnly, Descending });   
+    }
 }

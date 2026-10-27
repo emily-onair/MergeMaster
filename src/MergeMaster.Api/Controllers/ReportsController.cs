@@ -27,11 +27,11 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
                 statusCode: (int)isCommitOnBranch.Error!.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
-        var alreadyMerged = await github.IsCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
-        if (!alreadyMerged.Proceed)
+        var IsAlreadyMerged = await github.IsCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
+        if (!IsAlreadyMerged.Proceed)
             return Problem(
-                statusCode: (int)alreadyMerged.Error!.StatusCode, 
-                detail: alreadyMerged.Error.Message);
+                statusCode: (int)IsAlreadyMerged.Error!.StatusCode, 
+                detail: IsAlreadyMerged.Error.Message);
 
         var newReport = new NewReport(
             Repository: body.Repository,

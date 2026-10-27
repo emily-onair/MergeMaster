@@ -92,7 +92,7 @@ public sealed class GitHubApi(HttpClient http)
             var str = message.GetString();
             return !string.IsNullOrEmpty(str) ? str : genericFallback;
         }
-        // Fallback: If it's not JSON, but short text, return the raw content
+        // if it's not JSON, but short text, return the raw content
         return content.Length < 200 ? content : genericFallback;
     }
 }
