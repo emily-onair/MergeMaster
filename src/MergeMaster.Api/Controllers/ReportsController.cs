@@ -15,7 +15,7 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
     [HttpGet]
     public async Task<IActionResult> GetAllReports()
     {
-        var reports = store.All();
+        var reports = store.FindAll();
         return Ok(reports);
     }
 

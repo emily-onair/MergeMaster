@@ -49,7 +49,7 @@ public sealed class ReportStore
         return inList > 0;
     }
 
-    public IReadOnlyList<Report> All()
+    public IReadOnlyList<Report> FindAll()
     {
         lock (_lock)
         {
@@ -65,7 +65,7 @@ public sealed class ReportStore
         }
     }
 
-    public IReadOnlyList<Report> UrgentOnly()
+    public IReadOnlyList<Report> FindUrgentOnly()
     {
         lock (_lock)
         {

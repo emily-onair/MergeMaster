@@ -30,7 +30,7 @@ public sealed class IndexModel(ReportStore store) : PageModel
 
     public void OnGet()
     {
-        var list = UrgentOnly ? store.UrgentOnly() : store.All();
+        var list = UrgentOnly ? store.FindUrgentOnly() : store.FindAll();
         var sorted = Descending  ? list.OrderByDescending(r => r.CreatedAt)
                                  : list.OrderBy(r => r.CreatedAt);
         Reports = [.. sorted];
