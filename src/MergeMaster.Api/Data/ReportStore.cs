@@ -43,7 +43,7 @@ public sealed class ReportStore
         }
     }
 
-    public bool ReportIsDuplicate(string commit)
+    public bool CheckForDuplicate(string commit)
     {
         var inList = _reports.Count(r => r.CommitSha == commit);
         return inList > 0;

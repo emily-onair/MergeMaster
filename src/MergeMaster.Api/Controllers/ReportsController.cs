@@ -12,22 +12,29 @@ namespace MergeMaster.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class ReportsController(GitHubApi github, ReportStore store) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAllReports()
+    {
+        var reports = store.All();
+        return Ok(reports);
+    }
+
     [HttpPost("add")]
     public async Task<IActionResult> AddAsync(AddReportRequestBody body, CancellationToken ct)
     {
         Console.WriteLine($"REQUEST BODY: {body}");
 
-        var isDuplicate = store.ReportIsDuplicate(body.CommitSha);
+        var isDuplicate = store.CheckForDuplicate(body.CommitSha);
         if (isDuplicate)
             return Problem(statusCode: 400, detail: "A report already exists for this commit");
 
-        var isCommitOnBranch = await github.IsCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
+        var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
         if (!isCommitOnBranch.Proceed)
             return Problem(
                 statusCode: (int)isCommitOnBranch.Error!.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
-        var IsAlreadyMerged = await github.IsCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
+        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
         if (!IsAlreadyMerged.Proceed)
             return Problem(
                 statusCode: (int)IsAlreadyMerged.Error!.StatusCode, 

@@ -13,7 +13,7 @@ public sealed class GitHubApi(HttpClient http)
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
-    public async Task<GitHubResult<bool>> IsCommitOnBranchAsync(string ownerRepo, string branch, string commit, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForCommitOnBranchAsync(string ownerRepo, string branch, string commit, CancellationToken ct)
     {  
         using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/{branch}...{commit}", ct);
         if (response.IsSuccessStatusCode) {
@@ -30,7 +30,7 @@ public sealed class GitHubApi(HttpClient http)
         return GitHubResult<bool>.Fail(new HttpError(response.StatusCode, message));            
     }
 
-    public async Task<GitHubResult<bool>> IsCommitAlreadyMerged(string ownerRepo, string commit, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForCommitAlreadyMerged(string ownerRepo, string commit, CancellationToken ct)
     {  
         using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/main...{commit}", ct);
         if (response.IsSuccessStatusCode) {
