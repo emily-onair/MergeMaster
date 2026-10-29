@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using MergeMaster.Api.Services.GitHub;
 using MergeMaster.Api.Data;
 using MergeMaster.Api.Models.Requests;
-using MergeMaster.Api.Models;
 
 namespace MergeMaster.Api.Controllers;
 
@@ -13,9 +12,9 @@ namespace MergeMaster.Api.Controllers;
 public sealed class ReportsController(GitHubApi github, ReportStore store) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllReports()
+    public async Task<IActionResult> GetAllReports(CancellationToken ct)
     {
-        var reports = store.FindAll();
+        var reports = store.FindAllAsync(ct);
         return Ok(reports);
     }
 
@@ -24,7 +23,7 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
     {
         Console.WriteLine($"REQUEST BODY: {body}");
 
-        var isDuplicate = store.CheckForDuplicate(body.CommitSha);
+        var isDuplicate = await store.FindDuplicateAsync(body.CommitSha, ct);
         if (isDuplicate)
             return Problem(statusCode: 400, detail: "A report already exists for this commit");
 
@@ -40,16 +39,17 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
                 statusCode: (int)IsAlreadyMerged.Error.StatusCode, 
                 detail: IsAlreadyMerged.Error.Message);
 
-        var newReport = new NewReport(
-            Repository: body.Repository,
-            Branch: body.Branch,
-            CommitSha: body.CommitSha,
-            AuthorName: body.AuthorName,
-            AuthorEmail: body.AuthorEmail,
-            Urgent: body.Urgent,
-            Tags: body.Tags,
-            Notes: body.Notes
-        );
+        var newReport = new ReportEntity() {
+            CreatedAtUtc = DateTime.UtcNow,
+            Repository = body.Repository,
+            Branch = body.Branch,
+            CommitSha = body.CommitSha,
+            AuthorName = body.AuthorName,
+            AuthorEmail = body.AuthorEmail,
+            Urgent = body.Urgent,
+            Tags = body.Tags,
+            Notes = body.Notes
+        };
 
         var missingDetails = await github.GetCommitDetails(body.OwnerRepo, body.CommitSha, ct);
         if (!missingDetails.Proceed)
@@ -57,15 +57,12 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
                 statusCode: (int)missingDetails.Error.StatusCode, 
                 detail: missingDetails.Error.Message);
         if (missingDetails.Value is not null) {
-            newReport = newReport with
-            {
-                CommitMessage = missingDetails.Value.Commit.Message,
-                CommitDate = missingDetails.Value.Commit.Author.Date,
-                Validated = true
-            };
+            newReport.CommitMessage = missingDetails.Value.Commit.Message;
+            newReport.CommitDateUtc = missingDetails.Value.Commit.Author.Date;
+            newReport.Validated = true;
         }
 
-        store.Add(newReport);
+        await store.AddAsync(newReport, ct);
         return Ok("New report successfully created");
     }
 }

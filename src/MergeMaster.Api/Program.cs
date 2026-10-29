@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
 builder.Services.AddOptions<GitHubOptions>()
     .Bind(builder.Configuration.GetSection(GitHubOptions.Section))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
 builder.Services.AddOptions<DbOptions>()
     .Bind(builder.Configuration.GetSection(DbOptions.Section))
     .ValidateDataAnnotations()
@@ -30,6 +32,9 @@ builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
 }).AddStandardResilienceHandler();
 
 builder.Services.AddRazorPages();
+
+builder.Services.AddProblemDetails();
+
 // builder.Services.AddSingleton<ReportStore>(); // temp in memory db
 builder.Services.AddScoped<ReportStore>();
 
@@ -52,6 +57,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     await db.Database.MigrateAsync();
 }
 
+app.UseExceptionHandler();
 app.MapControllers();
 
 

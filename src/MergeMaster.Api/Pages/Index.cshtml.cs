@@ -28,18 +28,17 @@ public sealed class IndexModel(ReportStore store) : PageModel
         ["other"] = "text-bg-dark"
     };
 
-    public void OnGet()
+    public async Task OnGetAsync(CancellationToken ct)
     {
-        var list = UrgentOnly ? store.FindUrgentOnly() : store.FindAll();
+        var list = UrgentOnly ? await store.FindUrgentOnlyAsync(ct) : await store.FindAllAsync(ct);
         var sorted = Descending  ? list.OrderByDescending(r => r.CreatedAt)
                                  : list.OrderBy(r => r.CreatedAt);
         Reports = [.. sorted];
     } 
 
-    public IActionResult OnPostDelete(int id)
+    public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken ct)
     {
-        Console.WriteLine("ID IS :" + id);
-        store.Delete(id);
+        await store.DeleteAsync(id, ct);
         return RedirectToPage(new { UrgentOnly, Descending });   
     }
 }
