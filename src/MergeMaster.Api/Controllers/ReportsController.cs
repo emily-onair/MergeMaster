@@ -31,13 +31,13 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
         if (!isCommitOnBranch.Proceed)
             return Problem(
-                statusCode: (int)isCommitOnBranch.Error!.StatusCode, 
+                statusCode: (int)isCommitOnBranch.Error.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
         var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
         if (!IsAlreadyMerged.Proceed)
             return Problem(
-                statusCode: (int)IsAlreadyMerged.Error!.StatusCode, 
+                statusCode: (int)IsAlreadyMerged.Error.StatusCode, 
                 detail: IsAlreadyMerged.Error.Message);
 
         var newReport = new NewReport(
@@ -51,7 +51,11 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         );
 
         var missingDetails = await github.GetCommitDetails(body.OwnerRepo, body.CommitSha, ct);
-        if (missingDetails.Proceed && missingDetails.Value is not null) {
+        if (!missingDetails.Proceed)
+            return Problem(
+                statusCode: (int)missingDetails.Error.StatusCode, 
+                detail: missingDetails.Error.Message);
+        if (missingDetails.Value is not null) {
             newReport = newReport with
             {
                 AuthorEmail = missingDetails.Value.Commit.Author.Email,
