@@ -6,7 +6,7 @@ public sealed class GitHubOptions
 {
     public const string Section = "GitHub";
 
-    [Required] public string Token { get; set; } = "";
-    [Required] public string BaseUrl { get; set; } = "https://api.github.com";
-    [Required] public string ApiVersion { get; set; } = "2026-03-10";
+    [Required] public required string Token { get; init; }
+    [Required] public required string BaseUrl { get; init; }
+    [Required] public required string ApiVersion { get; init; }
 }

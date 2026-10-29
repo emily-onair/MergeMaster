@@ -12,6 +12,7 @@ REPO_NAME=$(basename -s .git "$REMOTE_URL")
 SOURCE_BRANCH=$(git branch --show-current)
 COMMIT_SHA=$(git rev-parse HEAD)
 AUTHOR_NAME=$(git log -1 --format="%an")
+AUTHOR_EMAIL=$(git log -1 --format="%ae")
 
 echo "REPO_NAME={$REPO_NAME}"
 echo "OWNER_REPO={$OWNER_REPO}"
@@ -22,6 +23,7 @@ JSON_DATA="{
     \"Branch\": \"$SOURCE_BRANCH\",
     \"CommitSha\": \"$COMMIT_SHA\",
     \"AuthorName\": \"$AUTHOR_NAME\",
+    \"AuthorEmail\": \"$AUTHOR_EMAIL\",
     \"Urgent\": $URGENT,
     \"Tags\": \"$TAGS\""
 

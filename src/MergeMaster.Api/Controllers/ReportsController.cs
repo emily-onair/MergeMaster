@@ -45,6 +45,7 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
             Branch: body.Branch,
             CommitSha: body.CommitSha,
             AuthorName: body.AuthorName,
+            AuthorEmail: body.AuthorEmail,
             Urgent: body.Urgent,
             Tags: body.Tags,
             Notes: body.Notes
@@ -58,7 +59,6 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         if (missingDetails.Value is not null) {
             newReport = newReport with
             {
-                AuthorEmail = missingDetails.Value.Commit.Author.Email,
                 CommitMessage = missingDetails.Value.Commit.Message,
                 CommitDate = missingDetails.Value.Commit.Author.Date,
                 Validated = true

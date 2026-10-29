@@ -5,6 +5,7 @@ public sealed record AddReportRequestBody(
     string Repository,
     string Branch,
     string AuthorName,
+    string AuthorEmail,
     string CommitSha,
     bool Urgent,
     string Tags,

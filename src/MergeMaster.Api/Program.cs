@@ -5,12 +5,17 @@ using Microsoft.Extensions.Options;
 using MergeMaster.Api.Data;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Services.GitHub;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOptions<GitHubOptions>()
     .Bind(builder.Configuration.GetSection(GitHubOptions.Section))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddOptions<DbOptions>()
+    .Bind(builder.Configuration.GetSection(DbOptions.Section))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
@@ -25,20 +30,39 @@ builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
 }).AddStandardResilienceHandler();
 
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<ReportStore>(); // temp in memory db
+// builder.Services.AddSingleton<ReportStore>(); // temp in memory db
+builder.Services.AddSingleton<ReportStore>();
+
+builder.Services.AddDbContext<ReportDb>((sp, options) =>
+{
+    var settings = sp.GetRequiredService<IOptions<DbOptions>>().Value;
+    var env = sp.GetRequiredService<IHostEnvironment>();
+    var path = Path.IsPathRooted(settings.Path)
+        ? settings.Path
+        : Path.Combine(env.ContentRootPath, settings.Path);
+    options.UseSqlite($"Data Source={path}");
+});
+
 
 var app = builder.Build();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ReportDb>();
+    await db.Database.MigrateAsync();
+}
+
 app.MapControllers();
 
 
-var seedFile = app.Configuration["SeedFile"]; // dummy data for dev
-if (app.Environment.IsDevelopment() && !string.IsNullOrEmpty(seedFile))
-{
-    var path = Path.Combine(app.Environment.ContentRootPath, seedFile);
-    await using var stream = File.OpenRead(path);
-    var reports = await JsonSerializer.DeserializeAsync<List<Report>>(stream, JsonSerializerOptions.Web);
-    app.Services.GetRequiredService<ReportStore>().Seed(reports ?? []);
-}
+// var seedFile = app.Configuration["SeedFile"]; // dummy data for dev
+// if (app.Environment.IsDevelopment() && !string.IsNullOrEmpty(seedFile))
+// {
+//     var path = Path.Combine(app.Environment.ContentRootPath, seedFile);
+//     await using var stream = File.OpenRead(path);
+//     var reports = await JsonSerializer.DeserializeAsync<List<Report>>(stream, JsonSerializerOptions.Web);
+//     app.Services.GetRequiredService<ReportStore>().Seed(reports ?? []);
+// }
 
 if (!app.Environment.IsDevelopment())
 {
