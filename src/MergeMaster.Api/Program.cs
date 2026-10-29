@@ -31,7 +31,7 @@ builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
 
 builder.Services.AddRazorPages();
 // builder.Services.AddSingleton<ReportStore>(); // temp in memory db
-builder.Services.AddSingleton<ReportStore>();
+builder.Services.AddScoped<ReportStore>();
 
 builder.Services.AddDbContext<ReportDb>((sp, options) =>
 {
