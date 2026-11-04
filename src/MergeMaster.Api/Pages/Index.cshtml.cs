@@ -1,44 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MergeMaster.Api.Pages;
 using MergeMaster.Api.Data;
 using MergeMaster.Api.Models;
 
-public sealed class IndexModel(ReportStore store) : PageModel
+public sealed class IndexModel(ReportStore store) : ReportsPageModel(store)
 {
-    [BindProperty(SupportsGet = true)]
-    public bool UrgentOnly { get; set; }
-
-    [BindProperty(SupportsGet = true)]
-    public bool Descending { get; set; }
-    
-    public IReadOnlyList<Report> Reports { get; private set; } = [];
-
-    public Dictionary<string, string> CategoryClasses { get; } = new()
+    public override bool IsArchive => false;
+    protected override Task<IReadOnlyList<Report>> LoadReportsAsync(CancellationToken ct)
     {
-        ["bugfix"] = "text-bg-success",
-        ["hotfix"] = "text-bg-danger",
-        ["feature"] = "text-bg-primary",
-        ["extend"] = "text-bg-info",
-        ["security"] = "text-bg-security",
-        ["chore"] = "text-bg-secondary",
-        ["docs"] = "text-bg-light",
-        ["claude"] = "claude",
-        ["other"] = "text-bg-dark"
-    };
-
-    public async Task OnGetAsync(CancellationToken ct)
+        return UrgentOnly ? Store.FindUrgentOnlyAsync(ct) : Store.FindAllAsync(ct);
+    }
+    public async Task<IActionResult> OnPostArchiveAsync(int id, CancellationToken ct)
     {
-        var list = UrgentOnly ? await store.FindUrgentOnlyAsync(ct) : await store.FindAllAsync(ct);
-        var sorted = Descending  ? list.OrderByDescending(r => r.CreatedAt)
-                                 : list.OrderBy(r => r.CreatedAt);
-        Reports = [.. sorted];
-    } 
-
-    public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken ct)
-    {
-        await store.DeleteAsync(id, ct);
-        return RedirectToPage(new { UrgentOnly, Descending });   
+        await Store.ArchiveAsync(id, ct);
+        return RedirectToPage(new { UrgentOnly, Descending });
     }
 }

@@ -14,7 +14,9 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
     [HttpGet]
     public async Task<IActionResult> GetAllReports(CancellationToken ct)
     {
-        var reports = store.FindAllAsync(ct);
+        var reports = await store.FindAllAsync(ct);
+        // TODO: revalidate each row before sending to frontend
+        // TODO: pagination 
         return Ok(reports);
     }
 

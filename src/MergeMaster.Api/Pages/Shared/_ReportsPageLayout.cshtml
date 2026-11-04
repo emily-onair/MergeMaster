@@ -1,0 +1,38 @@
+@model ReportsPageModel
+
+<form method="get" class="form-check form-switch" id="report-form">
+    <input class="form-check-input" 
+        @* asp-for="UrgentOnly" *@
+        type="checkbox" 
+        name="UrgentOnly" 
+        value="true" 
+        checked="@Model.UrgentOnly" 
+        onchange="this.form.submit()" />
+    <label class="form-check-label" for="UrgentOnly">Urgent Only</label>
+    <input type="hidden" name="Descending" value="@Model.Descending">
+</form>
+
+@if (Model.Reports.Count == 0)
+{
+    <p>No reports yet.</p>
+}
+else
+{
+    // larger screens
+    <partial name="_ReportsTable"
+        model="new ReportsTableViewModel(Model.Reports, Model.Descending, Model.UrgentOnly, Model.IsArchive)" />
+
+
+    <partial name="_ReportCards"
+        model="new ReportsTableViewModel(Model.Reports, Model.Descending, Model.UrgentOnly, Model.IsArchive)" />
+
+    <script>
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (err) {
+                console.error("Failed to copy: ", err);
+            }
+        }
+    </script>
+}

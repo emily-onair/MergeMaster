@@ -18,4 +18,5 @@ public sealed class Report
     public DateTimeOffset? UpdatedAt { get; set; }
     public bool Validated { get; set; }
     public DateTimeOffset? ArchivedAt { get; set; }
+    public ReportError? Error { get; set; }
 };

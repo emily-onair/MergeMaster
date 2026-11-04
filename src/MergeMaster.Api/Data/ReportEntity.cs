@@ -37,4 +37,5 @@ public sealed class ReportEntity
         Validated = Validated,
         ArchivedAt = ArchivedAtUtc is null ? null : new DateTimeOffset(ArchivedAtUtc.Value, TimeSpan.Zero)
     };
+    public ReportError? Error;
 }

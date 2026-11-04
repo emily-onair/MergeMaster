@@ -1,0 +1,31 @@
+@model ReportsTableViewModel
+
+
+@* // small screens *@
+<div class="d-block d-sm-none d-flex flex-column align-items-center gap-2 mt-4">
+    @foreach (var report in Model.Reports)
+    {
+        <div class="card" style="width: 95%;">
+            <div class="card-body">
+                <div class="pb-2 d-flex align-items-baseline justify-content-between">
+                    <partial name="_TagBadges" model="report.Tags" />
+                    <i class="card-subtitle text-muted">@report.CreatedAt.ToString("dd MMM, HH:mm")</i>
+                </div>
+                <h5 class="card-title">@report.Branch</h5>
+                <h6 
+                    class="card-subtitle mb-2 text-muted" 
+                    title="click to copy"
+                    onclick=copyToClipboard('@report.CommitSha')>
+                        @report.CommitSha.Substring(0, 5)
+                </h6>
+                <p class="card-text">@report.CommitMessage</p>
+                <dl class="row row-cols-auto font-monospace small">
+                    <dt class="col-3 text-muted">Author</dt>
+                    <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
+                    <dt class="col-3 text-muted">Date</dt>
+                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToString("dd MMM, HH:mm")</dd>
+                </dl>
+            </div>
+        </div>
+    }
+</div>

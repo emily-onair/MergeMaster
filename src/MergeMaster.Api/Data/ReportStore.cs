@@ -1,18 +1,9 @@
 namespace MergeMaster.Api.Data;
 using MergeMaster.Api.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class ReportStore(ReportDb db)
+public sealed class ReportStore(ReportDb db) : IReportStore
 {
-    // public void Seed(IEnumerable<Report> reports)
-    // {
-    //     lock (_lock)
-    //     {
-    //         _reports.AddRange(reports);
-    //     }
-    // }
-
     public async Task<Report> AddAsync(ReportEntity newReport, CancellationToken ct)
     {
         db.Add(newReport);
@@ -29,7 +20,18 @@ public sealed class ReportStore(ReportDb db)
 
     public async Task<IReadOnlyList<Report>> FindAllAsync(CancellationToken ct)
     {
+        // TODO: validation can be here as private method
         return await db.Reports.AsNoTracking()
+            .Select(r => r.ToReport())
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Report>> FindAllArchived(CancellationToken ct)
+    {
+        return await db.Reports
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(r => r.ArchivedAtUtc != null)
             .Select(r => r.ToReport())
             .ToListAsync(ct);
     }
@@ -59,5 +61,26 @@ public sealed class ReportStore(ReportDb db)
             }
             return false;
         }
+    }
+
+    public async Task<bool> ArchiveAsync(int id, CancellationToken ct)
+    {
+        var updated = await db.Reports
+            .Where(r => r.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.ArchivedAtUtc, DateTime.UtcNow)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
+        return updated > 0;
+    }
+
+    public async Task<bool> RestoreFromArchiveAsync(int id, CancellationToken ct)
+    {
+        var updated = await db.Reports
+            .IgnoreQueryFilters()
+            .Where(r => r.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
+        return updated > 0;
     }
 }

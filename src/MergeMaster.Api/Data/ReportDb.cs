@@ -11,7 +11,7 @@ public sealed class ReportDb(DbContextOptions<ReportDb> options)
         model.Entity<ReportEntity>(report =>
         {
             report.HasIndex(row => row.CommitSha)
-             .IsUnique();
+                .IsUnique();
             report.HasQueryFilter(row => row.ArchivedAtUtc == null);
         });
     }

@@ -1,9 +1,7 @@
 using System.Net.Http.Headers;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
 
 using MergeMaster.Api.Data;
-using MergeMaster.Api.Models;
 using MergeMaster.Api.Services.GitHub;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +33,6 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddProblemDetails();
 
-// builder.Services.AddSingleton<ReportStore>(); // temp in memory db
 builder.Services.AddScoped<ReportStore>();
 
 builder.Services.AddDbContext<ReportDb>((sp, options) =>
@@ -48,27 +45,11 @@ builder.Services.AddDbContext<ReportDb>((sp, options) =>
     options.UseSqlite($"Data Source={path}");
 });
 
-
 var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ReportDb>();
-    await db.Database.MigrateAsync();
-}
-
 app.UseExceptionHandler();
+
 app.MapControllers();
-
-
-// var seedFile = app.Configuration["SeedFile"]; // dummy data for dev
-// if (app.Environment.IsDevelopment() && !string.IsNullOrEmpty(seedFile))
-// {
-//     var path = Path.Combine(app.Environment.ContentRootPath, seedFile);
-//     await using var stream = File.OpenRead(path);
-//     var reports = await JsonSerializer.DeserializeAsync<List<Report>>(stream, JsonSerializerOptions.Web);
-//     app.Services.GetRequiredService<ReportStore>().Seed(reports ?? []);
-// }
 
 if (!app.Environment.IsDevelopment())
 {
@@ -84,6 +65,12 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages()
-   .WithStaticAssets();
+    .WithStaticAssets();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ReportDb>();
+    await db.Database.MigrateAsync();
+}
 
 app.Run();

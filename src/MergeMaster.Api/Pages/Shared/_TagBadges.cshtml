@@ -1,0 +1,25 @@
+@model string
+
+@{
+    var categoryClasses = new Dictionary<string, string>
+    {
+        ["bugfix"]   = "text-bg-success",
+        ["hotfix"]   = "text-bg-danger",
+        ["feature"]  = "text-bg-primary",
+        ["extend"]   = "text-bg-info",
+        ["security"] = "text-bg-security",
+        ["chore"]    = "text-bg-secondary",
+        ["docs"]     = "text-bg-light",
+        ["claude"]   = "claude",
+        ["other"]    = "text-bg-dark"
+    };
+}
+
+<div>
+    @foreach (var category in Model.Split(","))
+    {
+        var cssClass = categoryClasses.TryGetValue(category, out var c)
+            ? c : "text-bg-secondary";
+        <span class="badge @cssClass">@category</span>
+    }
+</div>
