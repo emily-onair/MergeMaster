@@ -3,16 +3,24 @@
 
 @if (Model.IsArchive)
 {
-    <form method="post" asp-page-handler="Restore" asp-route-id="@Model.ReportId">
-        <button type="submit">Restore</button>
-    </form>
-    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.ReportId">
-        <button type="submit">Delete</button>
-    </form>
+    <div class="d-flex gap-2">
+        <form method="post" asp-page-handler="Restore" asp-route-id="@Model.ReportId">
+            <button title="Restore" type="submit" class="btn btn-primary btn-sm">
+                <span class="bi-arrow-counterclockwise"></span>
+            </button>
+        </form>
+        <form method="post" asp-page-handler="Delete" asp-route-id="@Model.ReportId">
+            <button title="Delete" type="submit" class="btn btn-primary btn-sm">
+                <span class="bi-trash3-fill"></span>
+            </button>
+        </form>
+    </div>
 }
 else
 {
     <form method="post" asp-page-handler="Archive" asp-route-id="@Model.ReportId">
-        <button type="submit">Archive</button>
+        <button title="Archive" type="submit" class="btn btn-primary btn-sm">
+            <span class="bi-archive"></span>
+        </button>
     </form>
 }

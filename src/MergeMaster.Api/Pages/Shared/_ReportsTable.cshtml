@@ -1,15 +1,27 @@
+@using MergeMaster.Api.Extensions;
+
 @model ReportsTableViewModel
 
 <div class="table-responsive d-none d-sm-block">
     <table class="table table-hover">
+        <colgroup>
+            <col style="width: 2.5rem" />   @* urgent *@
+            <col style="width: 15%" />      @* tags *@
+            <col />                         @* branch *@
+            <col style="width: 10%" />      @* commit sha *@
+            <col style="width: 13%" />      @* date *@
+            <col style="width: 15%" />      @* author *@
+            <col style="width: 6rem" />     @* actions *@
+            <col style="width: 15%" />      @* error *@
+        </colgroup>
         <thead>
             <tr>
                 <th></th>
                 <th></th>
                 <th>Branch</th>
                 <th>Commit</th>
-                <th>
-                    Requested
+                <th class="d-flex gap-1">
+                    Date
                     <a class="btn btn-sm p-0"
                         asp-page="Index"
                         asp-route-Descending="@(!Model.Descending)"
@@ -18,7 +30,7 @@
                         <i class="bi @(Model.Descending ? "bi-chevron-down" : "bi-chevron-up")"></i>
                     </a>
                 </th>
-                <th>By</th>
+                <th>Author</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -26,9 +38,12 @@
         <tbody>
             @foreach (var report in Model.Reports)
             {
-                <tr class="clickable @(report.Urgent ? "table-danger" : null)" data-bs-toggle="collapse" data-bs-target="#accordion_@(report.Id)">
+                <tr 
+                    @* class="clickable @(report.Urgent ? "table-danger" : null)"  *@
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#accordion_@(report.Id)">
                     <td>
-                        @if (report.Urgent) {<i class="bi bi-exclamation-triangle"></i>}
+                        <partial name="_UrgentIdentifier" model="report.Urgent" />
                     </td>
                     <td>
                         <partial name="_TagBadges" model="report.Tags" />
@@ -37,7 +52,7 @@
                     <td>
                         @report.CommitSha.Substring(0, 5)
                     </td>
-                    <td>@report.CreatedAt.ToString("dd MMM, HH:mm")</td>
+                    <td>@report.CreatedAt.ToDisplayDate()</td>
                     <td>@report.AuthorName</td>
                     <td>
                         <partial name="_ReportActions" model="new ReportActionsViewModel(report.Id, Model.IsArchive)" />
@@ -46,19 +61,21 @@
                 </tr>
                 <tr>
                     <td class="p-0" colspan="8">
-                        <div id="accordion_@(report.Id)" class="collapse p-2">
-                            <p>@report.CommitMessage</p>
-                            <dl class="row row-cols-auto font-monospace small">
-                                <dt class="col-3 text-muted">SHA</dt>
-                                <dd 
-                                    class="col-9 text-break m-0" 
-                                    title="click to copy" 
-                                    onclick=copyToClipboard('@report.CommitSha')>@report.CommitSha</dd>
-                                <dt class="col-3 text-muted">Author</dt>
-                                <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
-                                <dt class="col-3 text-muted">Committed</dt>
-                                <dd class="col-9 text-break m-0">@report.CommitDate?.ToString("dd MMM, HH:mm")</dd>
-                            </dl>
+                        <div id="accordion_@(report.Id)" class="collapse">
+                            <div class="p-2">
+                                <p>@report.CommitMessage</p>
+                                <dl class="row row-cols-auto font-monospace small">
+                                    <dt class="col-3 text-muted">SHA</dt>
+                                    <dd 
+                                        class="col-9 text-break m-0" 
+                                        title="click to copy" 
+                                        onclick=copyToClipboard('@report.CommitSha')>@report.CommitSha</dd>
+                                    <dt class="col-3 text-muted">Author</dt>
+                                    <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
+                                    <dt class="col-3 text-muted">Committed</dt>
+                                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
+                                </dl>
+                            </div>
                         </div>
                     </td>
                 </tr>

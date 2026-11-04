@@ -11,7 +11,7 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
     [BindProperty(SupportsGet = true)]
     public bool UrgentOnly { get; set; }
     [BindProperty(SupportsGet = true)]
-    public bool Descending { get; set; }
+    public bool Descending { get; set; } = false;
     public IReadOnlyList<Report> Reports { get; private set; } = [];
     public abstract bool IsArchive { get; }
 

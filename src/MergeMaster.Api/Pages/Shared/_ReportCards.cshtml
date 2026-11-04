@@ -1,5 +1,6 @@
-@model ReportsTableViewModel
+@using MergeMaster.Api.Extensions;
 
+@model ReportsTableViewModel
 
 @* // small screens *@
 <div class="d-block d-sm-none d-flex flex-column align-items-center gap-2 mt-4">
@@ -7,9 +8,10 @@
     {
         <div class="card" style="width: 95%;">
             <div class="card-body">
+                <partial name="_UrgentIdentifier" model="report.Urgent" />
                 <div class="pb-2 d-flex align-items-baseline justify-content-between">
                     <partial name="_TagBadges" model="report.Tags" />
-                    <i class="card-subtitle text-muted">@report.CreatedAt.ToString("dd MMM, HH:mm")</i>
+                    <i class="card-subtitle text-muted">@report.CreatedAt.ToDisplayDate()</i>
                 </div>
                 <h5 class="card-title">@report.Branch</h5>
                 <h6 
@@ -23,7 +25,7 @@
                     <dt class="col-3 text-muted">Author</dt>
                     <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
                     <dt class="col-3 text-muted">Date</dt>
-                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToString("dd MMM, HH:mm")</dd>
+                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
                 </dl>
             </div>
         </div>
