@@ -12,6 +12,12 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
     public bool UrgentOnly { get; set; }
     [BindProperty(SupportsGet = true)]
     public bool Descending { get; set; } = false;
+    [BindProperty(SupportsGet = true)]
+    public List<string> SelectedAuthors { get; set; } = [];
+    [BindProperty(SupportsGet = true)]
+    public List<string> SelectedTags { get; set; } = [];
+    public List<string> Authors { get; private set; } = [];
+    public List<string> Tags { get; private set; } = [];
     public IReadOnlyList<Report> Reports { get; private set; } = [];
     public abstract bool IsArchive { get; }
 
@@ -21,12 +27,14 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
         var list = await LoadReportsAsync(ct);
         var sorted = Descending ? list.OrderByDescending(r => r.CreatedAt)
                                 : list.OrderBy(r => r.CreatedAt);
+        Authors = await Store.FindAuthorsAsync(IsArchive, ct);
+        Tags = await Store.FindTagsAsync(IsArchive, ct);
         Reports = [.. sorted];
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken ct)
     {
         await Store.DeleteAsync(id, ct);
-        return RedirectToPage(new { UrgentOnly, Descending });
+        return RedirectToPage(new { UrgentOnly, Descending, SelectedAuthors, SelectedTags });
     }
 }

@@ -9,13 +9,12 @@ public class ArchivedModel(ReportStore store) : ReportsPageModel(store)
     public override bool IsArchive => true;
     protected override async Task<IReadOnlyList<Report>> LoadReportsAsync(CancellationToken ct)
     {
-        var archived = await Store.FindAllArchived(ct);
-        return UrgentOnly ? [.. archived.Where(r => r.Urgent)] : archived;
+        return await Store.FindAllFilteredPagesAsync(IsArchive, UrgentOnly, SelectedAuthors,SelectedTags, ct);
     }
 
     public async Task<IActionResult> OnPostRestoreAsync(int id, CancellationToken ct)
     {
         await Store.RestoreFromArchiveAsync(id, ct);
-        return RedirectToPage(new { UrgentOnly, Descending });
+        return RedirectToPage(new { UrgentOnly, Descending, SelectedAuthors, SelectedTags });
     }
 }

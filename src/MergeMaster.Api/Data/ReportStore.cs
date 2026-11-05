@@ -26,12 +26,20 @@ public sealed class ReportStore(ReportDb db) : IReportStore
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<Report>> FindAllArchived(CancellationToken ct)
+    public async Task<IReadOnlyList<Report>> FindAllFilteredPagesAsync(
+        bool archived, bool? urgentOnly, List<string> authors, List<string> tags, 
+        CancellationToken ct)
     {
-        return await db.Reports
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Where(r => r.ArchivedAtUtc != null)
+        var query = archived
+            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
+            : db.Reports;
+
+        if (urgentOnly is true) query = query.Where(r => r.Urgent);
+        if (authors.Count > 0) query = query.Where(r => authors.Contains(r.AuthorName));
+        if (tags.Count > 0) query = query.Where(r => tags.Any(t => ("," + r.Tags + ",")
+            .Contains("," + t + ",")));
+
+        return await query.AsNoTracking()
             .Select(r => r.ToReport())
             .ToListAsync(ct);
     }
@@ -41,26 +49,16 @@ public sealed class ReportStore(ReportDb db) : IReportStore
         return (await db.Reports.FindAsync([id], ct))?.ToReport();
     }
 
-    public async Task<IReadOnlyList<Report>> FindUrgentOnlyAsync(CancellationToken ct)
-    {
-        return await db.Reports.AsNoTracking()
-            .Where(r => r.Urgent == true)
-            .Select(r => r.ToReport())
-            .ToListAsync(ct);
-    }
-
     public async Task<bool> DeleteAsync(int id, CancellationToken ct)
     {
+        var toDelete = await db.Reports.FindAsync([id], ct);
+        if (toDelete is not null) 
         {
-            var toDelete = await db.Reports.FindAsync([id], ct);
-            if (toDelete is not null) 
-            {
-                db.Reports.Remove(toDelete);
-                await db.SaveChangesAsync(ct);
-                return true;
-            }
-            return false;
+            db.Reports.Remove(toDelete);
+            await db.SaveChangesAsync(ct);
+            return true;
         }
+        return false;
     }
 
     public async Task<bool> ArchiveAsync(int id, CancellationToken ct)
@@ -82,5 +80,28 @@ public sealed class ReportStore(ReportDb db) : IReportStore
                 .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
                 .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
         return updated > 0;
+    }
+
+    public async Task<List<string>> FindAuthorsAsync(bool archived, CancellationToken ct)
+    {
+        var query = archived
+            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
+            : db.Reports;
+
+        return await query.Select(r => r.AuthorName)
+            .Distinct()
+            .ToListAsync(ct);
+    } 
+
+    public async Task<List<string>> FindTagsAsync(bool archived, CancellationToken ct)
+    {
+        var query = archived
+            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
+            : db.Reports;
+        var tagStrings = await query.AsNoTracking()
+            .Select(r => r.Tags).ToListAsync(ct);
+        return [.. tagStrings
+            .SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Distinct()];
     }
 }

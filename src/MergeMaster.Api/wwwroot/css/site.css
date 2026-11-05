@@ -34,3 +34,8 @@ body {
   background-color: rgb(255, 141, 11);
   color: #000000;
 }
+
+.dl-grid {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+}

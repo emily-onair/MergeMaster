@@ -6,20 +6,17 @@
     <table class="table table-hover">
         <colgroup>
             <col style="width: 2.5rem" />   @* urgent *@
-            <col style="width: 15%" />      @* tags *@
+            <col style="width: 13%" />      @* date *@
             <col />                         @* branch *@
             <col style="width: 10%" />      @* commit sha *@
-            <col style="width: 13%" />      @* date *@
             <col style="width: 15%" />      @* author *@
+            <col style="width: 15%" />      @* tags *@
             <col style="width: 6rem" />     @* actions *@
-            <col style="width: 15%" />      @* error *@
+            @* <col style="width: 15%" />      error *@
         </colgroup>
         <thead>
             <tr>
-                <th></th>
-                <th></th>
-                <th>Branch</th>
-                <th>Commit</th>
+                <th>@* urgent *@</th>
                 <th class="d-flex gap-1">
                     Date
                     <a class="btn btn-sm p-0"
@@ -30,37 +27,40 @@
                         <i class="bi @(Model.Descending ? "bi-chevron-down" : "bi-chevron-up")"></i>
                     </a>
                 </th>
+                <th>Branch</th>
+                <th>Commit</th>
                 <th>Author</th>
                 <th></th>
                 <th></th>
+                @* <th></th> *@
             </tr>
         </thead>
         <tbody>
             @foreach (var report in Model.Reports)
             {
                 <tr 
-                    @* class="clickable @(report.Urgent ? "table-danger" : null)"  *@
+                    class="clickable" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#accordion_@(report.Id)">
                     <td>
                         <partial name="_UrgentIdentifier" model="report.Urgent" />
                     </td>
-                    <td>
-                        <partial name="_TagBadges" model="report.Tags" />
-                    </td>
+                    <td>@report.CreatedAt.ToDisplayDate()</td>
                     <td>@report.Branch</td>
                     <td>
                         @report.CommitSha.Substring(0, 5)
                     </td>
-                    <td>@report.CreatedAt.ToDisplayDate()</td>
                     <td>@report.AuthorName</td>
+                    <td>
+                        <partial name="_TagBadges" model="report.Tags" />
+                    </td>
                     <td>
                         <partial name="_ReportActions" model="new ReportActionsViewModel(report.Id, Model.IsArchive)" />
                     </td>
-                    <td>@report.Error?.Message</td>
+                    @* <td>@report.Error?.Message</td> *@
                 </tr>
                 <tr>
-                    <td class="p-0" colspan="8">
+                    <td class="p-0" colspan="7">
                         <div id="accordion_@(report.Id)" class="collapse">
                             <div class="p-2">
                                 <p>@report.CommitMessage</p>

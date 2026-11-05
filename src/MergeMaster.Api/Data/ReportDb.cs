@@ -1,3 +1,4 @@
+using MergeMaster.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MergeMaster.Api.Data;

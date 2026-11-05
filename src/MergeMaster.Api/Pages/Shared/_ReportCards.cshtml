@@ -8,10 +8,10 @@
     {
         <div class="card" style="width: 95%;">
             <div class="card-body">
-                <partial name="_UrgentIdentifier" model="report.Urgent" />
-                <div class="pb-2 d-flex align-items-baseline justify-content-between">
+                <div class="pb-2 d-flex gap-2 align-items-baseline justify-content-between">
+                    <partial name="_UrgentIdentifier" model="report.Urgent" />
                     <partial name="_TagBadges" model="report.Tags" />
-                    <i class="card-subtitle text-muted">@report.CreatedAt.ToDisplayDate()</i>
+                    <i class="card-subtitle text-muted ms-auto">@report.CreatedAt.ToDisplayDate()</i>
                 </div>
                 <h5 class="card-title">@report.Branch</h5>
                 <h6 
@@ -20,12 +20,14 @@
                     onclick=copyToClipboard('@report.CommitSha')>
                         @report.CommitSha.Substring(0, 5)
                 </h6>
-                <p class="card-text">@report.CommitMessage</p>
-                <dl class="row row-cols-auto font-monospace small">
-                    <dt class="col-3 text-muted">Author</dt>
-                    <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
-                    <dt class="col-3 text-muted">Date</dt>
-                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
+                <h6>Commit Details</h6>
+                <dl class="dl-grid font-monospace small">
+                    <dt class="text-muted">Author:</dt>
+                    <dd class="text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
+                    <dt class="text-muted">Date:</dt>
+                    <dd class="text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
+                    <dt class="text-muted">Message:</dt>
+                    <dt class="text-break m-0">@report.CommitMessage</dt>
                 </dl>
             </div>
         </div>
