@@ -1,0 +1,60 @@
+@model ReportsPageModel
+
+<div class="card">
+    <h6 class="card-header">Filter by:</h6>
+    <form method="get" class=" card-body d-flex gap-2 align-items-center" id="report-form">
+        @* keeps sort state after filtering *@
+        <input type="hidden" name="Descending" value="@Model.Descending">
+
+        @* urgent switch *@
+        <div class="form-check form-switch">
+            <input class="form-check-input" 
+                type="checkbox" 
+                name="UrgentOnly" 
+                id="UrgentOnly"
+                value="true" 
+                checked="@Model.UrgentOnly" 
+                onchange="this.form.submit()" />
+            <label class="form-check-label" for="UrgentOnly" title="Urgent only">
+                <partial name="_UrgentIdentifier" model="true" />
+            </label>
+        </div>
+
+        @* author multiple select *@
+        <partial name="_DropdownMultipleSelect" 
+            model='new ReportDropdownMultipleSelectModel(Model.Authors, Model.SelectedAuthors, "Author")' />
+
+        @* tags multiple select *@
+        <partial name="_DropdownMultipleSelect"
+            model='new ReportDropdownMultipleSelectModel(Model.Tags, Model.SelectedTags, "Tag")' />
+
+        @* search branch/commit *@
+        <input class="form-control" 
+            list="datalistOptions" 
+            id="search" 
+            name="SearchValue"
+            value="@Model.SearchValue"
+            placeholder="Search for a specific branch or commit">
+        <datalist id="datalistOptions">
+            @foreach (var branch in Model.Branches)
+            {
+                <option value="@branch" />
+            }
+            @foreach (var commit in Model.Commits)
+            {
+                <option value="@commit" />
+            }
+        </datalist>
+    </form>
+</div>
+
+@* script to trigger form submit on select closure *@
+<script>
+    document.querySelectorAll('#report-form [data-submit-on-close]').forEach(dropdown => {
+        let changed = false;
+        dropdown.addEventListener('change', () => changed = true);
+        dropdown.addEventListener('hidden.bs.dropdown', () => {
+            if (changed) dropdown.closest('form').submit();
+        });
+    });
+</script>

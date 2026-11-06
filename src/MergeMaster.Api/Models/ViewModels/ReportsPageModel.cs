@@ -1,9 +1,8 @@
 using MergeMaster.Api.Data;
-using MergeMaster.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MergeMaster.Api.Pages;
+namespace MergeMaster.Api.Models.ViewModels;
 
 public abstract class ReportsPageModel(ReportStore store) : PageModel
 {
@@ -16,8 +15,12 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
     public List<string> SelectedAuthors { get; set; } = [];
     [BindProperty(SupportsGet = true)]
     public List<string> SelectedTags { get; set; } = [];
+    [BindProperty(SupportsGet = true)]
+    public string SearchValue { get; set; } = "";
     public List<string> Authors { get; private set; } = [];
     public List<string> Tags { get; private set; } = [];
+    public List<string> Branches { get; private set; } = [];
+    public List<string> Commits { get; private set; } = [];
     public IReadOnlyList<Report> Reports { get; private set; } = [];
     public abstract bool IsArchive { get; }
 
@@ -29,12 +32,14 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
                                 : list.OrderBy(r => r.CreatedAt);
         Authors = await Store.FindAuthorsAsync(IsArchive, ct);
         Tags = await Store.FindTagsAsync(IsArchive, ct);
+        Branches = await Store.FindBranchesAsync(IsArchive, ct);
+        Commits = await Store.FindCommitsAsync(IsArchive, ct);
         Reports = [.. sorted];
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken ct)
     {
         await Store.DeleteAsync(id, ct);
-        return RedirectToPage(new { UrgentOnly, Descending, SelectedAuthors, SelectedTags });
+        return RedirectToPage(new { UrgentOnly, Descending, SelectedAuthors, SelectedTags, SearchValue });
     }
 }

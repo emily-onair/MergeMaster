@@ -1,0 +1,23 @@
+@using MergeMaster.Api.Models.ViewModels;
+
+@model ReportDropdownMultipleSelectModel
+
+<div class="dropdown" data-submit-on-close>
+    <button class="form-select text-start" type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside">
+        @Model.Label
+    </button>
+    <div class="dropdown-menu p-2">
+        @foreach (var item in Model.Selectable)
+        {
+            <div class="form-check">
+                <input type="checkbox"
+                    name="@($"Selected{Model.Label}s")"
+                    value="@item" id="@($"{Model.Label}_{item}")"
+                    checked="@Model.Selected.Contains(item)" />
+                <label class="form-check-label" for="@($"{Model.Label}_{item}")">@item</label>
+            </div>
+        }
+    </div>
+</div>

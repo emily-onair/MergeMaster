@@ -1,4 +1,6 @@
 namespace MergeMaster.Api.Data;
+
+using System.Linq.Expressions;
 using MergeMaster.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,14 +30,28 @@ public sealed class ReportStore(ReportDb db) : IReportStore
 
     public async Task<IReadOnlyList<Report>> FindAllFilteredPagesAsync(
         bool archived, bool? urgentOnly, List<string> authors, List<string> tags, 
-        CancellationToken ct)
+        string? search, CancellationToken ct)
     {
         var query = archived
             ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
             : db.Reports;
 
         if (urgentOnly is true) query = query.Where(r => r.Urgent);
+        
         if (authors.Count > 0) query = query.Where(r => authors.Contains(r.AuthorName));
+
+        var searchTerm = search?.Trim();
+        if (!string.IsNullOrEmpty(searchTerm)) {
+            searchTerm = searchTerm.ToLowerInvariant();
+            // suppress warning for string comparison
+            // sqlite provider can't translate in this context
+            #pragma warning disable CA1862
+                query = query.Where(r =>
+                    r.Branch.ToLower().Contains(searchTerm) || 
+                    r.CommitSha.ToLower().Contains(searchTerm));
+            #pragma warning restore CA1862
+        }
+
         if (tags.Count > 0) query = query.Where(r => tags.Any(t => ("," + r.Tags + ",")
             .Contains("," + t + ",")));
 
@@ -82,14 +98,25 @@ public sealed class ReportStore(ReportDb db) : IReportStore
         return updated > 0;
     }
 
-    public async Task<List<string>> FindAuthorsAsync(bool archived, CancellationToken ct)
+    public async Task<List<string>> FindAuthorsAsync(bool archived, CancellationToken ct) =>
+        await FindDistinctAsync(r => r.AuthorName, archived, ct);
+
+    public async Task<List<string>> FindBranchesAsync(bool archived, CancellationToken ct) =>
+        await FindDistinctAsync(r => r.Branch, archived, ct);
+
+    public async Task<List<string>> FindCommitsAsync(bool archived, CancellationToken ct) =>
+        await FindDistinctAsync(r => r.CommitSha, archived, ct);
+
+    private async Task<List<string>> FindDistinctAsync(
+        Expression<Func<ReportEntity, string>> selector, bool archived, CancellationToken ct)
     {
         var query = archived
             ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
             : db.Reports;
 
-        return await query.Select(r => r.AuthorName)
+        return await query.Select(selector)
             .Distinct()
+            .OrderBy(x => x)
             .ToListAsync(ct);
     } 
 
