@@ -2,6 +2,7 @@ namespace MergeMaster.Api.Data;
 
 using System.Linq.Expressions;
 using MergeMaster.Api.Models;
+using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class ReportStore(ReportDb db) : IReportStore
@@ -28,9 +29,9 @@ public sealed class ReportStore(ReportDb db) : IReportStore
             .ToListAsync(ct);
     }
 
-    public async Task<IReadOnlyList<Report>> FindAllFilteredPagesAsync(
-        bool archived, bool? urgentOnly, List<string> authors, List<string> tags, 
-        string? search, CancellationToken ct)
+    public async Task<PaginationResult> FindAllFilteredPagesAsync(
+        bool archived, bool? descending, bool? urgentOnly, List<string> authors, 
+        List<string> tags, string? search, int page, int pageSize, CancellationToken ct)
     {
         var query = archived
             ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
@@ -55,9 +56,18 @@ public sealed class ReportStore(ReportDb db) : IReportStore
         if (tags.Count > 0) query = query.Where(r => tags.Any(t => ("," + r.Tags + ",")
             .Contains("," + t + ",")));
 
-        return await query.AsNoTracking()
+        query = descending is true
+            ? query.OrderByDescending(r => r.CreatedAtUtc)
+            : query.OrderBy(r => r.CreatedAtUtc);
+
+        var total = await query.CountAsync(ct);
+
+        var filteredReports = await query.AsNoTracking()
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(r => r.ToReport())
             .ToListAsync(ct);
+        return new PaginationResult(filteredReports, total, page, pageSize);
     }
 
     public async Task<Report?> FindByIdAsync(int id, CancellationToken ct)
@@ -96,6 +106,16 @@ public sealed class ReportStore(ReportDb db) : IReportStore
                 .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
                 .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
         return updated > 0;
+    }
+
+    public async Task<DropdownOptionLists> FindDropdownOptionsAsync(bool archived, CancellationToken ct)
+    {
+        return new DropdownOptionLists(
+            Authors: await FindAuthorsAsync(archived, ct),
+            Tags: await FindTagsAsync(archived, ct),
+            Branches: await FindBranchesAsync(archived, ct),
+            Commits: await FindCommitsAsync(archived, ct)
+        );
     }
 
     public async Task<List<string>> FindAuthorsAsync(bool archived, CancellationToken ct) =>

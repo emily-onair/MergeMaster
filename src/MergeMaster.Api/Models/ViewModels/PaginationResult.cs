@@ -1,4 +1,4 @@
-using MergeMaster.Api.Models;
+namespace MergeMaster.Api.Models.ViewModels;
 
 public sealed record PaginationResult(
     IReadOnlyList<Report> FilteredReports, int TotalCount, int Page, int PageSize)

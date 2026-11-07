@@ -1,7 +1,7 @@
 @model ReportsPageModel
 
 
-<partial name="_Filters" model="Model" />
+<partial name="_Filters" model="new FilterViewModel(Model.DropdownOptions, Model.FilterOptions)" />
 
 @if (Model.Reports.Count == 0)
 {
@@ -11,30 +11,16 @@ else
 {
     // larger screens
     <partial name="_ReportsTable"
-        model="new ReportsTableViewModel(Model.Reports, Model.Descending, Model.UrgentOnly, Model.IsArchive)" />
+        model="new ReportsTableViewModel(Model.Reports, Model.FilterOptions.IsDescending, 
+        Model.IsArchive, Model.SortUrl)" />
 
-
+    // smaller screens
     <partial name="_ReportCards"
-        model="new ReportsTableViewModel(Model.Reports, Model.Descending, Model.UrgentOnly, Model.IsArchive)" />
+        model="new ReportsTableViewModel(Model.Reports, Model.FilterOptions.IsDescending, 
+        Model.IsArchive, Model.SortUrl)" />
 
-
-    @* <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            <li class="page-item">
-            <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-            <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-            </li>
-        </ul>
-    </nav> *@
+    <partial name="_PaginationControls"
+        model="new PaginationControlViewModel(Model.Results, Model.PageUrl)" />
 
     <script>
         async function copyToClipboard(text) {

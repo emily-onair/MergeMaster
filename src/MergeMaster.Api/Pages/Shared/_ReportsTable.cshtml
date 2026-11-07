@@ -20,11 +20,9 @@
                 <th class="d-flex gap-1">
                     Date
                     <a class="btn btn-sm p-0"
-                        asp-page="Index"
-                        asp-route-Descending="@(!Model.Descending)"
-                        asp-route-UrgentOnly="@Model.UrgentOnly"
+                        href="@Model.SortUrl"
                         title="Toggle sort direction">
-                        <i class="bi @(Model.Descending ? "bi-chevron-down" : "bi-chevron-up")"></i>
+                        <i class="bi @(Model.IsDescending ? "bi-chevron-down" : "bi-chevron-up")"></i>
                     </a>
                 </th>
                 <th>Branch</th>

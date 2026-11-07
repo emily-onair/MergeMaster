@@ -3,43 +3,52 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MergeMaster.Api.Models.ViewModels;
+using MergeMaster.Api.Extensions;
 
 public abstract class ReportsPageModel(ReportStore store) : PageModel
 {
     protected ReportStore Store { get; } = store;
-    [BindProperty(SupportsGet = true)]
-    public bool UrgentOnly { get; set; }
-    [BindProperty(SupportsGet = true)]
-    public bool Descending { get; set; } = false;
-    [BindProperty(SupportsGet = true)]
-    public List<string> SelectedAuthors { get; set; } = [];
-    [BindProperty(SupportsGet = true)]
-    public List<string> SelectedTags { get; set; } = [];
-    [BindProperty(SupportsGet = true)]
-    public string SearchValue { get; set; } = "";
-    public List<string> Authors { get; private set; } = [];
-    public List<string> Tags { get; private set; } = [];
-    public List<string> Branches { get; private set; } = [];
-    public List<string> Commits { get; private set; } = [];
-    public IReadOnlyList<Report> Reports { get; private set; } = [];
-    public abstract bool IsArchive { get; }
 
-    protected abstract Task<IReadOnlyList<Report>> LoadReportsAsync(CancellationToken ct);
+    public abstract bool IsArchive { get; }
+    // Name = "" binds without a prefix: ?IsUrgentOnly=true instead of ?Filter.IsUrgentOnly=true.
+    [BindProperty(SupportsGet = true, Name = "")]
+    public ReportFilterOptions FilterOptions { get; set; } = new();
+    protected IActionResult RedirectWithFilters => RedirectToPage(FilterOptions);
+    public DropdownOptionLists DropdownOptions { get; private set; } = new([], [], [], []);
+    public const int PageSize = 2;
+    [BindProperty(SupportsGet = true)]
+    public int PageNumber { get; set; } = 1;
+    public PaginationResult Results { get; private set; } = new([], 0, 1, PageSize);
+    public IReadOnlyList<Report> Reports => Results.FilteredReports;
     public async Task OnGetAsync(CancellationToken ct)
     {
-        var list = await LoadReportsAsync(ct);
-        var sorted = Descending ? list.OrderByDescending(r => r.CreatedAt)
-                                : list.OrderBy(r => r.CreatedAt);
-        Authors = await Store.FindAuthorsAsync(IsArchive, ct);
-        Tags = await Store.FindTagsAsync(IsArchive, ct);
-        Branches = await Store.FindBranchesAsync(IsArchive, ct);
-        Commits = await Store.FindCommitsAsync(IsArchive, ct);
-        Reports = [.. sorted];
+        Results = await LoadReportsAsync(ct);
+        DropdownOptions = await Store.FindDropdownOptionsAsync(IsArchive, ct);
     }
+
+    private async Task<PaginationResult> LoadReportsAsync(CancellationToken ct)
+    {
+        return await Store.FindAllFilteredPagesAsync(
+            archived: IsArchive, 
+            descending: FilterOptions.IsDescending, 
+            urgentOnly: FilterOptions.IsUrgentOnly, 
+            authors: FilterOptions.SelectedAuthors, 
+            tags: FilterOptions.SelectedTags, 
+            search: FilterOptions.SearchValue, 
+            page: PageNumber,
+            pageSize: PageSize,
+            ct);
+    }
+
+    public string PageUrl(int pageNumber) => Request.UpdateQueryString(("PageNumber", pageNumber.ToString()));
+
+    public string SortUrl => Request.UpdateQueryString(
+        ("IsDescending", (!FilterOptions.IsDescending).ToString().ToLowerInvariant()),
+        ("PageNumber", null));
 
     public async Task<IActionResult> OnPostDeleteAsync(int id, CancellationToken ct)
     {
         await Store.DeleteAsync(id, ct);
-        return RedirectToPage(new { UrgentOnly, Descending, SelectedAuthors, SelectedTags, SearchValue });
+        return RedirectWithFilters;
     }
 }

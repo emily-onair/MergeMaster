@@ -1,0 +1,21 @@
+@model PaginationControlViewModel;
+
+@if (Model.Results.TotalPages > 1)
+{
+    <nav aria-label="Report pages" class="d-flex justify-content-center">
+        <ul class="pagination">
+            <li class="page-item @(Model.Results.HasPrev ? "" : "disabled")">
+                <a class="page-link" href="@Model.PrevUrl">Previous</a>
+            </li>
+            @for (var i = 1; i <= Model.Results.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Results.Page ? "active" : "")">
+                    <a class="page-link" href="@Model.PageUrl(i)">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.Results.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@Model.NextUrl">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
