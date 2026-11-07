@@ -4,6 +4,12 @@
 
 @* // small screens *@
 <div class="d-block d-sm-none d-flex flex-column align-items-center gap-2 mt-4 mb-4">
+    <a class="btn btn-sm p-0 align-self-end"
+        href="@Model.SortUrl"
+        title="Toggle sort direction">
+        @(Model.IsDescending ? "Newest First" : "Oldest First")
+        <i class="bi @(Model.IsDescending ? "bi-chevron-down" : "bi-chevron-up")"></i>
+    </a>
     @foreach (var report in Model.Reports)
     {
         <div class="card" style="width: 95%;">
@@ -26,6 +32,7 @@
                     <dd class="text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
                     <dt class="text-muted">Date:</dt>
                     <dd class="text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
+                    @* TODO: markdown format text *@
                     <dt class="text-muted">Message:</dt>
                     <dt class="text-break m-0">@report.CommitMessage</dt>
                 </dl>

@@ -15,7 +15,7 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
     public ReportFilterOptions FilterOptions { get; set; } = new();
     protected IActionResult RedirectWithFilters => RedirectToPage(FilterOptions);
     public DropdownOptionLists DropdownOptions { get; private set; } = new([], [], [], []);
-    public const int PageSize = 2;
+    public const int PageSize = 25;
     [BindProperty(SupportsGet = true)]
     public int PageNumber { get; set; } = 1;
     public PaginationResult Results { get; private set; } = new([], 0, 1, PageSize);
