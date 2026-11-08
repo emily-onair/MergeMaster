@@ -61,7 +61,8 @@
                     <td class="p-0" colspan="7">
                         <div id="accordion_@(report.Id)" class="collapse">
                             <div class="p-2">
-                                <p>@report.CommitMessage</p>
+                                <partial name="_CommitDetails" model="@report" />
+                                @* <p>@report.CommitMessage</p>
                                 <dl class="row row-cols-auto font-monospace small">
                                     <dt class="col-3 text-muted">SHA</dt>
                                     <dd 
@@ -72,7 +73,7 @@
                                     <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
                                     <dt class="col-3 text-muted">Committed</dt>
                                     <dd class="col-9 text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
-                                </dl>
+                                </dl> *@
                             </div>
                         </div>
                     </td>

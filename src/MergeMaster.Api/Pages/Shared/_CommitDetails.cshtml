@@ -1,0 +1,16 @@
+@using MergeMaster.Api.Models;
+@using MergeMaster.Api.Extensions;
+
+@model Report
+
+<h6>Commit Details</h6>
+<dl class="dl-grid font-monospace small">
+    <dt class="text-muted">Author:</dt>
+    <dd class="text-break m-0">@Model.AuthorName &lt;@Model.AuthorEmail&gt;</dd>
+    <dt class="text-muted">Date:</dt>
+    <dd class="text-break m-0">@Model.CommitDate?.ToDisplayDate()</dd>
+    <dt class="text-muted">Message:</dt>
+    <dt class="text-break m-0">
+        <markdown markdown="@Model.CommitMessage" normalize-whitespace="false" />
+    </dt>
+</dl>

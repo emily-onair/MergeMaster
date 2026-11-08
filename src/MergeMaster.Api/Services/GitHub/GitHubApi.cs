@@ -6,7 +6,7 @@ namespace MergeMaster.Api.Services.GitHub;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Services.GitHub.Models;
 
-public sealed class GitHubApi(HttpClient http)
+public sealed class GitHubApi(HttpClient http) : IGitHubApi
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
@@ -62,7 +62,7 @@ public sealed class GitHubApi(HttpClient http)
         // response.EnsureSuccessStatusCode();
     }
 
-    public static bool ShouldProceed(HttpResponseMessage response)
+    public bool ShouldProceed(HttpResponseMessage response)
     {
         if (response.StatusCode == HttpStatusCode.BadGateway
             || response.StatusCode == HttpStatusCode.ServiceUnavailable
@@ -94,5 +94,11 @@ public sealed class GitHubApi(HttpClient http)
         }
         // if it's not JSON, but short text, return the raw content
         return content.Length < 200 ? content : genericFallback;
+    }
+
+    public async Task<List<ReportSyncError>> SynchronizeWithGitHub()
+    {
+        
+        return [];
     }
 }

@@ -26,16 +26,7 @@
                     onclick=copyToClipboard('@report.CommitSha')>
                         @report.CommitSha.Substring(0, 5)
                 </h6>
-                <h6>Commit Details</h6>
-                <dl class="dl-grid font-monospace small">
-                    <dt class="text-muted">Author:</dt>
-                    <dd class="text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
-                    <dt class="text-muted">Date:</dt>
-                    <dd class="text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
-                    @* TODO: markdown format text *@
-                    <dt class="text-muted">Message:</dt>
-                    <dt class="text-break m-0">@report.CommitMessage</dt>
-                </dl>
+                <partial name="_CommitDetails" model="@report" />
             </div>
         </div>
     }

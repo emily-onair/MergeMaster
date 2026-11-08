@@ -1,8 +1,8 @@
 namespace MergeMaster.Api.Models;
 
-public class ReportError
+public class ReportSyncError
 {
     public string? Message { get; set;}
     public DateTimeOffset Time { get; set; }
-    public ReportErrorTypes ErrorType { get; set; }
+    public ReportSyncErrorTypes ErrorType { get; set; }
 }

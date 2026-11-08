@@ -1,7 +1,8 @@
 @model ReportsPageModel
 
 
-<partial name="_Filters" model="new FilterViewModel(Model.DropdownOptions, Model.FilterOptions)" />
+<partial name="_Filters" 
+    model="new FilterViewModel(Model.DropdownOptions, Model.FilterOptions)" />
 
 @if (Model.Reports.Count == 0)
 {
