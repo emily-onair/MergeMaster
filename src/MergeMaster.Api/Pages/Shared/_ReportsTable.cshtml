@@ -62,18 +62,6 @@
                         <div id="accordion_@(report.Id)" class="collapse">
                             <div class="p-2">
                                 <partial name="_CommitDetails" model="@report" />
-                                @* <p>@report.CommitMessage</p>
-                                <dl class="row row-cols-auto font-monospace small">
-                                    <dt class="col-3 text-muted">SHA</dt>
-                                    <dd 
-                                        class="col-9 text-break m-0" 
-                                        title="click to copy" 
-                                        onclick=copyToClipboard('@report.CommitSha')>@report.CommitSha</dd>
-                                    <dt class="col-3 text-muted">Author</dt>
-                                    <dd class="col-9 text-break m-0">@report.AuthorName &lt;@report.AuthorEmail&gt;</dd>
-                                    <dt class="col-3 text-muted">Committed</dt>
-                                    <dd class="col-9 text-break m-0">@report.CommitDate?.ToDisplayDate()</dd>
-                                </dl> *@
                             </div>
                         </div>
                     </td>

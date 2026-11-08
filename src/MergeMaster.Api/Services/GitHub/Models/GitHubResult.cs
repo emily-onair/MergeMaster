@@ -21,8 +21,8 @@ public class GitHubResult<T>
     public static GitHubResult<T> Success(T value) => 
         new(value, null, true);
 
-    public static GitHubResult<T> ProceedDespiteError(T? fallbackValue) => 
-        new(fallbackValue, null, true);
+    public static GitHubResult<T> ProceedDespiteError() => 
+        new(default, null, true);
 
     public static GitHubResult<T> Fail(HttpError error) 
     {

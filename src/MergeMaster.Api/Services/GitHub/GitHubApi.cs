@@ -16,50 +16,73 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     public async Task<GitHubResult<bool>> CheckForCommitOnBranchAsync(string ownerRepo, string branch, string commit, CancellationToken ct)
     {  
         using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/{branch}...{commit}", ct);
-        if (response.IsSuccessStatusCode) {
-            var json = await response.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
-            var isMatch = json is not null && (json.Status == "behind" || json.Status == "identical");
-            if (isMatch)
-                return GitHubResult<bool>.Success(isMatch);
-            return GitHubResult<bool>.Fail(new HttpError(HttpStatusCode.BadRequest, $"Commit {commit} not on branch {branch}"));
-        }
-        // TODO: refactor this section in this and IsCommitAlreadyMerged functions
-        var message = await ExtractErrorMessageAsync(response);
-        if (ShouldProceed(response))
-            return GitHubResult<bool>.ProceedDespiteError(false);
-        return GitHubResult<bool>.Fail(new HttpError(response.StatusCode, message));            
+        if (!response.IsSuccessStatusCode)
+            return await ErrorResultAsync<bool>(response);
+        
+        var json = await response.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
+        var isOnBranch = json is not null && (json.Status == "behind" || json.Status == "identical");
+        if (isOnBranch)
+            return GitHubResult<bool>.Success(isOnBranch);
+        return GitHubResult<bool>.Fail(new HttpError(HttpStatusCode.BadRequest, $"Commit {commit} not on branch {branch}"));         
     }
 
     public async Task<GitHubResult<bool>> CheckForCommitAlreadyMerged(string ownerRepo, string commit, CancellationToken ct)
     {  
-        using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/main...{commit}", ct);
-        if (response.IsSuccessStatusCode) {
-            var json = await response.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
-            var isMatch = json is not null && (json.Status == "behind" || json.Status == "identical");
-            if (isMatch)
-                return GitHubResult<bool>.Fail(new HttpError(HttpStatusCode.BadRequest, $"Commit {commit} has already been merged into main"));
-            return GitHubResult<bool>.Success(isMatch);
+        // check if commit exists on main branch
+        using var resCompare = await http.GetAsync($"/repos/{ownerRepo}/compare/main...{commit}", ct);
+        if (!resCompare.IsSuccessStatusCode)
+            return await ErrorResultAsync<bool>(resCompare);
+
+        var jsonCompare = await resCompare.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
+        var isOnMain = jsonCompare is not null && (jsonCompare.Status == "behind" || jsonCompare.Status == "identical");
+        if (isOnMain)
+            return GitHubResult<bool>.Fail(
+                new HttpError(HttpStatusCode.BadRequest, 
+                $"Commit {commit} has already been merged into main"));
+
+        // check for squash merge - only shows if performed via pull request
+        using var resPulls = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}/pulls", ct);
+        if (!resPulls.IsSuccessStatusCode)
+            return await ErrorResultAsync<bool>(resPulls);
+
+        var jsonPulls = await resPulls.Content.ReadFromJsonAsync<List<ResultPull>>(Json, ct) ?? [];
+        var IsSquashedViaPull = jsonPulls.FirstOrDefault(p => p.MergedAt is not null && p.Base.Ref == "main");
+        if (IsSquashedViaPull is not null) {
+            return GitHubResult<bool>.Fail(
+                new HttpError(HttpStatusCode.BadRequest, 
+                $"Commit {commit} has already been merged into main"));
         }
-        var message = await ExtractErrorMessageAsync(response);
-        if (ShouldProceed(response))
-            return GitHubResult<bool>.ProceedDespiteError(false);
-        return GitHubResult<bool>.Fail(new HttpError(response.StatusCode, message));            
+        
+        return GitHubResult<bool>.Success(false);
     }
 
     public async Task<GitHubResult<ResultCommit>> GetCommitDetails(string ownerRepo, string commit, CancellationToken ct)
     {
         using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadFromJsonAsync<ResultCommit>(Json, ct);
-            if (json is not null) return GitHubResult<ResultCommit>.Success(json);
-            else return GitHubResult<ResultCommit>.ProceedDespiteError(json);
-        }
-        if (ShouldProceed(response))
-            return GitHubResult<ResultCommit>.ProceedDespiteError(null);
-        var message = await ExtractErrorMessageAsync(response);
-        return GitHubResult<ResultCommit>.Fail(new HttpError(response.StatusCode, message));
-        // response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            return await ErrorResultAsync<ResultCommit>(response);
+        
+        var json = await response.Content.ReadFromJsonAsync<ResultCommit>(Json, ct);
+        if (json is not null) return GitHubResult<ResultCommit>.Success(json);
+        else return GitHubResult<ResultCommit>.ProceedDespiteError();
+    }
+
+    public async Task<List<ReportSyncError>> SynchronizeWithGitHub()
+    {
+        // repo check - 404 could be token lost access
+        // general error
+        
+        // resend same ETag with IfNoneMatch header for 304 NotModified res
+        // saves token rate
+
+        // get branches from unarchived reports
+        // check each branch name matches db - rename will be caught here
+
+        // get commits
+        // if exists but not on branch = rebase or amend?
+        // check if merged into main
+        // if not, could still be a squash merge - check commit for pulls for merged_at
+        return [];
     }
 
     public bool ShouldProceed(HttpResponseMessage response)
@@ -96,9 +119,11 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         return content.Length < 200 ? content : genericFallback;
     }
 
-    public async Task<List<ReportSyncError>> SynchronizeWithGitHub()
+    private async Task<GitHubResult<T>> ErrorResultAsync<T>(HttpResponseMessage response)
     {
-        
-        return [];
+        if (ShouldProceed(response))
+            return GitHubResult<T>.ProceedDespiteError();
+        var message = await ExtractErrorMessageAsync(response);
+        return GitHubResult<T>.Fail(new HttpError(response.StatusCode, message));
     }
 }
