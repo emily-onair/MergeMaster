@@ -4,7 +4,7 @@ public abstract class ReportBase
 {
     public int Id { get; init; }
     public string Repository { get; init; } = "";
-    public string Branch { get; init; } = "";
+    public string Branch { get; set; } = "";
     public string CommitSha { get; init; } = "";
     public string? CommitMessage { get; set; }
     public string AuthorName { get; init; } = "";
