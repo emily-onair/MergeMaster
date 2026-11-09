@@ -1,9 +1,10 @@
-using MergeMaster.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MergeMaster.Api.Models.ViewModels;
+using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Extensions;
+
+namespace MergeMaster.Api.Models.ViewModels;
 
 public abstract class ReportsPageModel(ReportStore store) : PageModel
 {

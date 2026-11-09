@@ -1,29 +1,35 @@
-namespace MergeMaster.Api.Models;
+using MergeMaster.Api.Models.ViewModels;
 
-public sealed class ReportEntity : ReportBase
+namespace MergeMaster.Api.DAL.Models;
+
+public class ReportEntity : ReportBase
 {
+    public int BranchId { get; set; }
+    public BranchEntity Branch { get; set; } = null!;
+    public int AuthorId { get; init; }
+    public AuthorEntity Author { get; set; } = null!;
+    public List<TagEntity> Tags { get; set; } = [];
     public DateTime CreatedAtUtc { get; init; }
     public DateTime? CommitDateUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public DateTime? ArchivedAtUtc { get; set; }
+    // public int RepositoryId {get; set;}
 
-    public List<ReportSyncFlagEntity> SyncFlags { get; set; } = [];
+    // public List<ReportSyncFlagEntity> SyncFlags { get; set; } = [];
     public Report ToReport() => new()
     {
         Id = Id,
         CreatedAt = new DateTimeOffset(CreatedAtUtc, TimeSpan.Zero),
-        Repository = Repository,
-        Branch = Branch,
+        Repo = Branch.Repo.Repository,
+        Branch = Branch.Name,
         CommitSha = CommitSha,
         CommitMessage = CommitMessage,
         CommitDate = CommitDateUtc is null ? null : new DateTimeOffset(CommitDateUtc.Value, TimeSpan.Zero),
-        AuthorName = AuthorName,
-        AuthorEmail = AuthorEmail,
+        AuthorName = Author.Name,
         Urgent = Urgent,
-        Tags = Tags,
-        Notes = Notes,
+        Tags = [.. Tags.Select(t => t.Name)],
+        // Notes = Notes,
         UpdatedAt = UpdatedAtUtc is null ? null : new DateTimeOffset(UpdatedAtUtc.Value, TimeSpan.Zero),
-        Validated = Validated,
         ArchivedAt = ArchivedAtUtc is null ? null : new DateTimeOffset(ArchivedAtUtc.Value, TimeSpan.Zero)
     };
 }

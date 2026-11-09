@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 
 using MergeMaster.Api.Services.GitHub;
-using MergeMaster.Api.Data;
 using MergeMaster.Api.Models.Requests;
-using MergeMaster.Api.Models;
+using MergeMaster.Api.DAL.Repositories;
+using MergeMaster.Api.DAL.Models;
 
 namespace MergeMaster.Api.Controllers;
 
@@ -30,39 +30,40 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         if (isDuplicate)
             return Problem(statusCode: 400, detail: "A report already exists for this commit");
 
-        var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, true, ct);
+        var ownerRepo = $"{body.Owner}/{body.Repository}";
+
+        var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(ownerRepo, body.Branch, body.CommitSha, true, ct);
         if (!isCommitOnBranch.Proceed)
             return Problem(
                 statusCode: (int)isCommitOnBranch.Error.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
-        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, true, ct);
+        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(ownerRepo, body.CommitSha, true, ct);
         if (!IsAlreadyMerged.Proceed)
             return Problem(
                 statusCode: (int)IsAlreadyMerged.Error.StatusCode, 
                 detail: IsAlreadyMerged.Error.Message);
 
-        var newReport = new ReportEntity() {
-            CreatedAtUtc = DateTime.UtcNow,
-            Repository = body.Repository,
-            Branch = body.Branch,
-            CommitSha = body.CommitSha,
-            AuthorName = body.AuthorName,
-            AuthorEmail = body.AuthorEmail,
-            Urgent = body.Urgent,
-            Tags = body.Tags,
-            Notes = body.Notes
-        };
+        var newReport = new NewReport(
+            CreatedAtUtc: DateTime.UtcNow,
+            Owner: body.Owner,
+            Repository: body.Repository,
+            Branch: body.Branch,
+            CommitSha: body.CommitSha,
+            AuthorName: body.AuthorName,
+            Urgent: body.Urgent,
+            Tags: body.Tags,
+            CommitDateUtc: body.CommitDate.UtcDateTime
+        );
 
-        var missingDetails = await github.GetCommitDetails(body.OwnerRepo, body.CommitSha, true, ct);
+        var missingDetails = await github.GetCommitDetails(ownerRepo, body.CommitSha, true, ct);
         if (!missingDetails.Proceed)
             return Problem(
                 statusCode: (int)missingDetails.Error.StatusCode, 
                 detail: missingDetails.Error.Message);
         if (missingDetails.Value is not null) {
-            newReport.CommitMessage = missingDetails.Value.Commit.Message;
-            newReport.CommitDateUtc = missingDetails.Value.Commit.Author.Date;
-            newReport.Validated = true;
+            newReport = newReport 
+                with { CommitMessage = missingDetails.Value.Commit.Message };
         }
 
         await store.AddAsync(newReport, ct);

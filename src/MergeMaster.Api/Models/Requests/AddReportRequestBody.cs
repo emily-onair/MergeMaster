@@ -1,13 +1,13 @@
 namespace MergeMaster.Api.Models.Requests;
 
 public sealed record AddReportRequestBody(
-    string OwnerRepo,
+    string Owner,
     string Repository,
     string Branch,
-    string AuthorName,
-    string AuthorEmail,
     string CommitSha,
+    DateTimeOffset CommitDate,
+    string AuthorName,
     bool Urgent,
     string Tags,
-    string? Notes
+    string? CommitMessage = null
 );

@@ -1,31 +1,46 @@
-namespace MergeMaster.Api.Data;
+namespace MergeMaster.Api.DAL.Repositories;
 
 using System.Linq.Expressions;
-using MergeMaster.Api.Models;
+using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class ReportStore(ReportDb db) : IReportStore
+public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branches,
+    AuthorStore authors, TagStore tags) : IReportStore
 {
-    public async Task<Report> AddAsync(ReportEntity newReport, CancellationToken ct)
+    public async Task<Report> AddAsync(NewReport newReport, CancellationToken ct)
     {
-        db.Add(newReport);
+        var repo = await repos.GetOrCreateAsync(newReport.Owner, newReport.Repository, ct);
+        var branch = await branches.GetOrCreateAsync(repo, newReport.Branch, ct);
+        var author = await authors.GetOrCreateAsync(newReport.AuthorName, ct);
+        var tagList = await tags.GetOrCreateAsync(newReport.Tags, ct);
+
+        var report = new ReportEntity
+        {
+            CreatedAtUtc = newReport.CreatedAtUtc,
+            CommitSha = newReport.CommitSha,
+            CommitMessage = newReport.CommitMessage,
+            CommitDateUtc = newReport.CommitDateUtc,
+            Urgent = newReport.Urgent,
+            Branch = branch,
+            Author = author,
+            Tags = tagList,
+        };
+        db.Reports.Add(report);
         await db.SaveChangesAsync(ct);
-        return newReport.ToReport();
+        return report.ToReport();
     }
 
-    public async Task<bool> FindDuplicateAsync(string commit, CancellationToken ct)
-    {
-        // remove global filters to include archived reports
-        return await db.Reports.IgnoreQueryFilters()
-            .AnyAsync(r => r.CommitSha == commit, ct);
-    }
+    public async Task<bool> FindDuplicateAsync(string commit, CancellationToken ct) =>
+        await db.Reports.AnyAsync(r => r.CommitSha == commit, ct);
 
     public async Task<IReadOnlyList<Report>> FindAllAsync(CancellationToken ct)
     {
         // TODO: validation can be here as private method
         return await db.Reports.AsNoTracking()
+            .Populate()
             .Select(r => r.ToReport())
+            // .Include(Repository) // joins to other table in db
             .ToListAsync(ct);
     }
 
@@ -33,36 +48,38 @@ public sealed class ReportStore(ReportDb db) : IReportStore
         bool archived, bool? descending, bool? urgentOnly, List<string> authors, 
         List<string> tags, string? search, int page, int pageSize, CancellationToken ct)
     {
-        var query = archived
-            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
-            : db.Reports;
+        var query = db.Reports.InArchive(archived);
 
         if (urgentOnly is true) query = query.Where(r => r.Urgent);
         
-        if (authors.Count > 0) query = query.Where(r => authors.Contains(r.AuthorName));
+        if (authors.Count > 0) query = query.Where(r => authors.Contains(r.Author.Name));
 
         var searchTerm = search?.Trim();
         if (!string.IsNullOrEmpty(searchTerm)) {
             searchTerm = searchTerm.ToLowerInvariant();
-            // suppress warning for string comparison
+            // pragma to suppress warning for string comparison
             // sqlite provider can't translate in this context
             #pragma warning disable CA1862
                 query = query.Where(r =>
-                    r.Branch.ToLower().Contains(searchTerm) || 
+                    r.Branch.Name.ToLower().Contains(searchTerm) || 
                     r.CommitSha.ToLower().Contains(searchTerm));
             #pragma warning restore CA1862
         }
 
-        if (tags.Count > 0) query = query.Where(r => tags.Any(t => ("," + r.Tags + ",")
-            .Contains("," + t + ",")));
+        if (tags.Count > 0) query = query.Where(r => r.Tags.Any(t => tags.Contains(t.Name)));
 
         query = descending is true
             ? query.OrderByDescending(r => r.CreatedAtUtc)
             : query.OrderBy(r => r.CreatedAtUtc);
 
+        // #if DEBUG
+        // Console.WriteLine("QUERY STRING ======> " + query.ToQueryString());
+        // #endif
+
         var total = await query.CountAsync(ct);
 
         var filteredReports = await query.AsNoTracking()
+            .Populate()
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(r => r.ToReport())
@@ -72,7 +89,10 @@ public sealed class ReportStore(ReportDb db) : IReportStore
 
     public async Task<Report?> FindByIdAsync(int id, CancellationToken ct)
     {
-        return (await db.Reports.FindAsync([id], ct))?.ToReport();
+        var report = await db.Reports
+            .Populate()
+            .FirstOrDefaultAsync(r => r.Id == id, ct);
+        return report?.ToReport();
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken ct)
@@ -100,7 +120,6 @@ public sealed class ReportStore(ReportDb db) : IReportStore
     public async Task<bool> RestoreFromArchiveAsync(int id, CancellationToken ct)
     {
         var updated = await db.Reports
-            .IgnoreQueryFilters()
             .Where(r => r.Id == id)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
@@ -111,44 +130,19 @@ public sealed class ReportStore(ReportDb db) : IReportStore
     public async Task<DropdownOptionLists> FindDropdownOptionsAsync(bool archived, CancellationToken ct)
     {
         return new DropdownOptionLists(
-            Authors: await FindAuthorsAsync(archived, ct),
-            Tags: await FindTagsAsync(archived, ct),
-            Branches: await FindBranchesAsync(archived, ct),
+            Authors: await authors.GetNamesAsync(archived, ct),
+            Tags: await tags.GetNamesAsync(archived, ct),
+            Branches: await branches.GetNamesAsync(archived, ct),
             Commits: await FindCommitsAsync(archived, ct)
         );
     }
 
-    public async Task<List<string>> FindAuthorsAsync(bool archived, CancellationToken ct) =>
-        await FindDistinctAsync(r => r.AuthorName, archived, ct);
-
-    public async Task<List<string>> FindBranchesAsync(bool archived, CancellationToken ct) =>
-        await FindDistinctAsync(r => r.Branch, archived, ct);
-
-    public async Task<List<string>> FindCommitsAsync(bool archived, CancellationToken ct) =>
-        await FindDistinctAsync(r => r.CommitSha, archived, ct);
-
-    private async Task<List<string>> FindDistinctAsync(
-        Expression<Func<ReportEntity, string>> selector, bool archived, CancellationToken ct)
+    public async Task<List<string>> FindCommitsAsync(bool archived, CancellationToken ct)
     {
-        var query = archived
-            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
-            : db.Reports;
-
-        return await query.Select(selector)
+        var query = db.Reports.InArchive(archived);
+        return await query.Select(r => r.CommitSha)
             .Distinct()
             .OrderBy(x => x)
             .ToListAsync(ct);
-    } 
-
-    public async Task<List<string>> FindTagsAsync(bool archived, CancellationToken ct)
-    {
-        var query = archived
-            ? db.Reports.IgnoreQueryFilters().Where(r => r.ArchivedAtUtc != null)
-            : db.Reports;
-        var tagStrings = await query.AsNoTracking()
-            .Select(r => r.Tags).ToListAsync(ct);
-        return [.. tagStrings
-            .SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Distinct()];
     }
 }

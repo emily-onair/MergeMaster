@@ -1,9 +1,10 @@
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 
-using MergeMaster.Api.Data;
 using MergeMaster.Api.Services.GitHub;
 using Microsoft.EntityFrameworkCore;
+using MergeMaster.Api.DAL.Repositories;
+using MergeMaster.Api.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<ReportStore>();
+builder.Services.AddScoped<RepoStore>();
+builder.Services.AddScoped<BranchStore>();
+builder.Services.AddScoped<AuthorStore>();
+builder.Services.AddScoped<TagStore>();
 
 builder.Services.AddDbContext<ReportDb>((sp, options) =>
 {

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace MergeMaster.Api.Pages;
-using MergeMaster.Api.Data;
+using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models.ViewModels;
+
+namespace MergeMaster.Api.Pages;
 
 public sealed class IndexModel(ReportStore store) : ReportsPageModel(store)
 {

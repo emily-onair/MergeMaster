@@ -1,6 +1,7 @@
-﻿using MergeMaster.Api.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+
+using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 
 namespace MergeMaster.Api.Pages;
 

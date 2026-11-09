@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MergeMaster.Api.Data;
+namespace MergeMaster.Api.DAL;
 
 public sealed class DbOptions
 {

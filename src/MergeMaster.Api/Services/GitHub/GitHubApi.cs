@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text.Json;
 
-namespace MergeMaster.Api.Services.GitHub;
-
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Services.GitHub.Models;
+
+namespace MergeMaster.Api.Services.GitHub;
 
 public sealed class GitHubApi(HttpClient http) : IGitHubApi
 {
@@ -19,10 +19,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         {
             using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}");
             if (!response.IsSuccessStatusCode)
-            {
-                var message = await ExtractErrorMessageAsync(response);
-                return GitHubResult<bool>.Fail(new HttpError(response.StatusCode, message));
-            }
+                return await ErrorResultAsync<bool>(response, unavailableAllowed);
             return GitHubResult<bool>.Success(true);
         }, unavailableAllowed, ct);
     }
@@ -31,12 +28,9 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}/branches/{branch}");
+            using var response = await http.GetAsync($"/repos/{ownerRepo}/branches/{branch}");
             if (!response.IsSuccessStatusCode)
-            {
-                var message = await ExtractErrorMessageAsync(response);
-                return GitHubResult<string>.Fail(new HttpError(response.StatusCode, message));
-            }
+                return await ErrorResultAsync<string>(response, unavailableAllowed);
             var json = await response.Content.ReadFromJsonAsync<Branch>(Json, ct);
             if (json is not null)
                 return GitHubResult<string>.Success(json.Name);
@@ -46,12 +40,23 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }, unavailableAllowed, ct);
     }
 
+    public async Task<GitHubResult<bool>> CheckForCommitExistence(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
+    {
+        return await NetworkGuardAsync(async () =>
+        {
+            using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}");
+            if (!response.IsSuccessStatusCode)
+                return await ErrorResultAsync<bool>(response, unavailableAllowed);
+            return GitHubResult<bool>.Success(true);
+        }, unavailableAllowed, ct);
+    }
+
     public async Task<GitHubResult<bool>> CheckForCommitOnBranchAsync(string ownerRepo, string branch, string commit, bool unavailableAllowed, CancellationToken ct)
     {  
         return await NetworkGuardAsync(async () => {
             using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/{branch}...{commit}", ct);
             if (!response.IsSuccessStatusCode)
-                return await ErrorResultAsync<bool>(response);
+                return await ErrorResultAsync<bool>(response, unavailableAllowed);
             
             var json = await response.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
             var isOnBranch = json is not null && (json.Status == "behind" || json.Status == "identical");
@@ -67,7 +72,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
             // check if commit exists on main branch
             using var resCompare = await http.GetAsync($"/repos/{ownerRepo}/compare/main...{commit}", ct);
             if (!resCompare.IsSuccessStatusCode)
-                return await ErrorResultAsync<bool>(resCompare);
+                return await ErrorResultAsync<bool>(resCompare, unavailableAllowed);
 
             var jsonCompare = await resCompare.Content.ReadFromJsonAsync<ResultCompare>(Json, ct);
             var isOnMain = jsonCompare is not null && (jsonCompare.Status == "behind" || jsonCompare.Status == "identical");
@@ -77,17 +82,17 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
                     $"Commit {commit} has already been merged into main"));
 
             // check for squash merge - only shows if performed via pull request
-            using var resPulls = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}/pulls", ct);
-            if (!resPulls.IsSuccessStatusCode)
-                return await ErrorResultAsync<bool>(resPulls);
+            // using var resPulls = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}/pulls", ct);
+            // if (!resPulls.IsSuccessStatusCode)
+            //     return await ErrorResultAsync<bool>(resPulls, unavailableAllowed);
 
-            var jsonPulls = await resPulls.Content.ReadFromJsonAsync<List<ResultPull>>(Json, ct) ?? [];
-            var IsSquashedViaPull = jsonPulls.FirstOrDefault(p => p.MergedAt is not null && p.Base.Ref == "main");
-            if (IsSquashedViaPull is not null) {
-                return GitHubResult<bool>.Fail(
-                    new HttpError(HttpStatusCode.BadRequest, 
-                    $"Commit {commit} has already been merged into main"));
-            }
+            // var jsonPulls = await resPulls.Content.ReadFromJsonAsync<List<ResultPull>>(Json, ct) ?? [];
+            // var IsSquashedViaPull = jsonPulls.FirstOrDefault(p => p.MergedAt is not null && p.Base.Ref == "main");
+            // if (IsSquashedViaPull is not null) {
+            //     return GitHubResult<bool>.Fail(
+            //         new HttpError(HttpStatusCode.BadRequest, 
+            //         $"Commit {commit} has already been merged into main"));
+            // }
             
             return GitHubResult<bool>.Success(false);
         }, unavailableAllowed, ct);
@@ -98,7 +103,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         return await NetworkGuardAsync(async () => {
             using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
             if (!response.IsSuccessStatusCode)
-                return await ErrorResultAsync<ResultCommit>(response);
+                return await ErrorResultAsync<ResultCommit>(response, unavailableAllowed);
             
             var json = await response.Content.ReadFromJsonAsync<ResultCommit>(Json, ct);
             if (json is not null) return GitHubResult<ResultCommit>.Success(json);
@@ -144,9 +149,9 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }
     }
 
-    private async Task<GitHubResult<T>> ErrorResultAsync<T>(HttpResponseMessage response)
+    private async Task<GitHubResult<T>> ErrorResultAsync<T>(HttpResponseMessage response, bool unavailableAllowed)
     {
-        if (ShouldProceed(response))
+        if (unavailableAllowed && ShouldProceed(response))
             return GitHubResult<T>.ProceedDespiteError();
         var message = await ExtractErrorMessageAsync(response);
         return GitHubResult<T>.Fail(new HttpError(response.StatusCode, message));

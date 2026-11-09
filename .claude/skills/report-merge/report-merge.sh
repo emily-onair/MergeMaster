@@ -7,31 +7,25 @@ TAGS="$2"
 NOTES="$3"
 
 REMOTE_URL=$(git config --get remote.origin.url)
-OWNER_REPO=$(echo "$REMOTE_URL" | sed -n 's|.*[:/]\([^/]*\)/\([^/]*\)\.git$|\1/\2|p')
+OWNER=$(echo "$REMOTE_URL" | sed -n 's|.*[:/]\([^/]*\)/[^/]*\.git$|\1|p')
 REPO_NAME=$(basename -s .git "$REMOTE_URL")
 SOURCE_BRANCH=$(git branch --show-current)
 COMMIT_SHA=$(git rev-parse HEAD)
+COMMIT_DATE=$(git log -1 --format=%ci)
 AUTHOR_NAME=$(git log -1 --format="%an")
-AUTHOR_EMAIL=$(git log -1 --format="%ae")
 
 echo "REPO_NAME={$REPO_NAME}"
 echo "OWNER_REPO={$OWNER_REPO}"
 
 JSON_DATA="{
-    \"OwnerRepo\": \"$OWNER_REPO\",
+    \"Owner\": \"$OWNER\",
     \"Repository\": \"$REPO_NAME\",
     \"Branch\": \"$SOURCE_BRANCH\",
     \"CommitSha\": \"$COMMIT_SHA\",
+    \"CommitDate\": \"$COMMIT_DATE\",
     \"AuthorName\": \"$AUTHOR_NAME\",
-    \"AuthorEmail\": \"$AUTHOR_EMAIL\",
     \"Urgent\": $URGENT,
-    \"Tags\": \"$TAGS\""
-
-if [ -n "$NOTES" ]; then
-    JSON_DATA+=", \"Notes\": \"$NOTES\""
-fi
-
-JSON_DATA+="}"
+    \"Tags\": \"$TAGS\"}"
 
 HTTP_BODY=$(mktemp)
 HTTP_STATUS=$(curl -s -o "$HTTP_BODY" -w "%{http_code}" -X POST "$API_URL" \
