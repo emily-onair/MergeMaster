@@ -30,13 +30,13 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
         if (isDuplicate)
             return Problem(statusCode: 400, detail: "A report already exists for this commit");
 
-        var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, ct);
+        var isCommitOnBranch = await github.CheckForCommitOnBranchAsync(body.OwnerRepo, body.Branch, body.CommitSha, true, ct);
         if (!isCommitOnBranch.Proceed)
             return Problem(
                 statusCode: (int)isCommitOnBranch.Error.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
-        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, ct);
+        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(body.OwnerRepo, body.CommitSha, true, ct);
         if (!IsAlreadyMerged.Proceed)
             return Problem(
                 statusCode: (int)IsAlreadyMerged.Error.StatusCode, 
@@ -54,7 +54,7 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
             Notes = body.Notes
         };
 
-        var missingDetails = await github.GetCommitDetails(body.OwnerRepo, body.CommitSha, ct);
+        var missingDetails = await github.GetCommitDetails(body.OwnerRepo, body.CommitSha, true, ct);
         if (!missingDetails.Proceed)
             return Problem(
                 statusCode: (int)missingDetails.Error.StatusCode, 

@@ -13,7 +13,40 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
-    public async Task<GitHubResult<bool>> CheckForCommitOnBranchAsync(string ownerRepo, string branch, string commit, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct)
+    {
+        return await NetworkGuardAsync(async () =>
+        {
+            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ExtractErrorMessageAsync(response);
+                return GitHubResult<bool>.Fail(new HttpError(response.StatusCode, message));
+            }
+            return GitHubResult<bool>.Success(true);
+        }, unavailableAllowed, ct);
+    }
+
+    public async Task<GitHubResult<string>> CheckForBranchExistence(string ownerRepo, string branch, bool unavailableAllowed, CancellationToken ct)
+    {
+        return await NetworkGuardAsync(async () =>
+        {
+            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}/branches/{branch}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await ExtractErrorMessageAsync(response);
+                return GitHubResult<string>.Fail(new HttpError(response.StatusCode, message));
+            }
+            var json = await response.Content.ReadFromJsonAsync<Branch>(Json, ct);
+            if (json is not null)
+                return GitHubResult<string>.Success(json.Name);
+            return GitHubResult<string>.Fail(new HttpError(
+                HttpStatusCode.UnprocessableContent,
+                "Problem retrieving branch"));
+        }, unavailableAllowed, ct);
+    }
+
+    public async Task<GitHubResult<bool>> CheckForCommitOnBranchAsync(string ownerRepo, string branch, string commit, bool unavailableAllowed, CancellationToken ct)
     {  
         return await NetworkGuardAsync(async () => {
             using var response = await http.GetAsync($"/repos/{ownerRepo}/compare/{branch}...{commit}", ct);
@@ -25,10 +58,10 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
             if (isOnBranch)
                 return GitHubResult<bool>.Success(isOnBranch);
             return GitHubResult<bool>.Fail(new HttpError(HttpStatusCode.BadRequest, $"Commit {commit} not on branch {branch}"));         
-        }, ct);
+        }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<bool>> CheckForCommitAlreadyMerged(string ownerRepo, string commit, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForCommitAlreadyMerged(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
     {  
         return await NetworkGuardAsync(async () => {
             // check if commit exists on main branch
@@ -57,10 +90,10 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
             }
             
             return GitHubResult<bool>.Success(false);
-        }, ct);
+        }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<ResultCommit>> GetCommitDetails(string ownerRepo, string commit, CancellationToken ct)
+    public async Task<GitHubResult<ResultCommit>> GetCommitDetails(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () => {
             using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
@@ -70,25 +103,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
             var json = await response.Content.ReadFromJsonAsync<ResultCommit>(Json, ct);
             if (json is not null) return GitHubResult<ResultCommit>.Success(json);
             else return GitHubResult<ResultCommit>.ProceedDespiteError();
-        }, ct);
-    }
-
-    public async Task<List<ReportSyncError>> SynchronizeWithGitHub()
-    {
-        // repo check - 404 could be token lost access
-        // general error
-        
-        // resend same ETag with IfNoneMatch header for 304 NotModified res
-        // saves token rate
-
-        // get branches from unarchived reports
-        // check each branch name matches db - rename will be caught here
-
-        // get commits
-        // if exists but not on branch = rebase or amend?
-        // check if merged into main
-        // if not, could still be a squash merge - check commit for pulls for merged_at
-        return [];
+        }, unavailableAllowed, ct);
     }
 
     public bool ShouldProceed(HttpResponseMessage response)
@@ -138,7 +153,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     }
 
     private static async Task<GitHubResult<T>> NetworkGuardAsync<T>(
-        Func<Task<GitHubResult<T>>> call, CancellationToken ct
+        Func<Task<GitHubResult<T>>> call, bool unavailableAllowed, CancellationToken ct
     )
     {
         try
@@ -150,7 +165,12 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
                 or OperationCanceledException   // HttpClient timeout
                 or Polly.ExecutionRejectedException)
         {
-            return GitHubResult<T>.ProceedDespiteError();
+            return unavailableAllowed 
+                ? GitHubResult<T>.ProceedDespiteError(isUnavailable: true)
+                : GitHubResult<T>.Fail(
+                    new HttpError(HttpStatusCode.ServiceUnavailable,
+                    "GitHub could not be reached"
+                    ), true);
         }
 
     }

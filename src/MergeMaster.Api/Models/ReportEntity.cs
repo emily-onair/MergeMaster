@@ -6,6 +6,8 @@ public sealed class ReportEntity : ReportBase
     public DateTime? CommitDateUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
     public DateTime? ArchivedAtUtc { get; set; }
+
+    public List<ReportSyncFlagEntity> SyncFlags { get; set; } = [];
     public Report ToReport() => new()
     {
         Id = Id,
