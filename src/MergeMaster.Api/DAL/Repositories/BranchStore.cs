@@ -16,6 +16,17 @@ public class BranchStore(ReportDb db)
             .OrderBy(n => n)
             .ToListAsync(ct);
     }
+
+    public async Task<List<BranchEntity>> GetBranchesAsync(bool archived, CancellationToken ct)
+    {
+        var reports = db.Reports.InArchive(archived);
+
+        return await db.Branches
+            .Where(b => reports.Any(r => r.BranchId == b.Id))
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync(ct);
+    }
     public async Task<BranchEntity> GetOrCreateAsync(RepoEntity repo, string name, CancellationToken ct)
     {
         name = name.Trim();

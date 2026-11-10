@@ -1,0 +1,36 @@
+@model List<SyncUpdate>
+
+<form method="post" asp-page-handler="Synchronize" class="mb-4">
+    <button title="Archive" type="submit" class="btn btn-primary btn-sm">
+        <span class="bi-arrow-repeat"></span>
+        Synchronize with GitHub
+    </button>
+</form>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @* <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body d-flex justify-content-between align-items-center">
+                <p class="mb-0">
+                    <b class="text-success">
+                        Error
+                    </b>: 
+                    Here is the message
+                </p>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div> *@
+    @foreach (var update in Model)
+    {
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body d-flex justify-content-between align-items-center">
+                <p class="mb-0">
+                    <b class="@(update.Error || update.Flag ? "text-danger" : "text-success")">
+                        @(update.Error ? "Error" : update.Flag ? "Flagged" : "Update")
+                    </b>: 
+                    @update.Message
+                </p>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+</div>

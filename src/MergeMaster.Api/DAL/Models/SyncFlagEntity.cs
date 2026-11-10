@@ -8,5 +8,5 @@ public class SyncFlagEntity
     public int ReportId { get; init; }
     public SyncFlagTypes FlagType { get; init; }
     public DateTime DetectedAtUtc { get; set; }
-    public string? Details { get; set;}
+    // public string? Details { get; set;}
 }

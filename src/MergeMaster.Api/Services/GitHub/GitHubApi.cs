@@ -13,27 +13,42 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
-    public async Task<GitHubResult<string>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<string>> CheckForRepoExistence(string owner, string repo, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}", ct);
+            using var response = await http.GetAsync($"/repos/{owner}/{repo}", ct);
+
+            if (response.StatusCode == HttpStatusCode.MovedPermanently // owner or repo changed - follow redirect for new data
+                && response.Headers.Location is not null)
+            {
+                using var redirectedResponse = await http.GetAsync(response.Headers.Location, ct);
+                if (!redirectedResponse.IsSuccessStatusCode)
+                    return await ErrorResultAsync<string>(redirectedResponse, unavailableAllowed);
+                var redirectJson = await redirectedResponse.Content.ReadFromJsonAsync<Repo>(Json, ct);
+                return redirectJson is not null
+                    ? GitHubResult<string>.Success(redirectJson.FullName)
+                    : GitHubResult<string>.Fail(new HttpError(
+                    HttpStatusCode.UnprocessableContent,
+                    "Problem retrieving repository"));
+            }
+
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<string>(response, unavailableAllowed);
             var json = await response.Content.ReadFromJsonAsync<Repo>(Json, ct);
-            if (json is not null)
-                return GitHubResult<string>.Success(json.FullName);
-            return GitHubResult<string>.Fail(new HttpError(
-                HttpStatusCode.UnprocessableContent,
-                "Problem retrieving branch"));
+            return json is not null
+                ? GitHubResult<string>.Success(json.FullName)
+                : GitHubResult<string>.Fail(new HttpError(
+                    HttpStatusCode.UnprocessableContent,
+                    "Problem retrieving repository"));
         }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<string>> CheckForBranchExistence(string ownerRepo, string branch, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<string>> CheckForBranchExistence(string owner, string repo, string branch, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"/repos/{ownerRepo}/branches/{branch}", ct);
+            using var response = await http.GetAsync($"/repos/{owner}/{repo}/branches/{branch}", ct);
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<string>(response, unavailableAllowed);
             var json = await response.Content.ReadFromJsonAsync<Branch>(Json, ct);

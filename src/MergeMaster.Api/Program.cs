@@ -5,6 +5,7 @@ using MergeMaster.Api.Services.GitHub;
 using Microsoft.EntityFrameworkCore;
 using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.DAL;
+using MergeMaster.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,10 @@ builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
     http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
     http.DefaultRequestHeaders.Add("X-GitHub-Api-Version", gh.ApiVersion);
     http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", gh.Token);
-}).AddStandardResilienceHandler();
+})
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false }) // prevents automatic redirect
+    .AddStandardResilienceHandler();
+
 
 builder.Services.AddRazorPages();
 
@@ -39,6 +43,9 @@ builder.Services.AddScoped<RepoStore>();
 builder.Services.AddScoped<BranchStore>();
 builder.Services.AddScoped<AuthorStore>();
 builder.Services.AddScoped<TagStore>();
+builder.Services.AddScoped<SyncFlagStore>();
+
+builder.Services.AddScoped<IReportSyncService, ReportSyncService>();
 
 builder.Services.AddDbContext<ReportDb>((sp, options) =>
 {

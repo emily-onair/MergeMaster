@@ -7,11 +7,12 @@
         <colgroup>
             <col style="width: 2.5rem" />   @* urgent *@
             <col style="width: 13%" />      @* date *@
+            <col />                         @* repo *@
             <col />                         @* branch *@
             <col style="width: 10%" />      @* commit sha *@
             <col style="width: 15%" />      @* author *@
             <col style="width: 15%" />      @* tags *@
-            <col style="width: 6rem" />     @* actions *@
+            <col style="width: 3.5rem" />     @* actions *@
             @* <col style="width: 15%" />      error *@
         </colgroup>
         <thead>
@@ -25,6 +26,7 @@
                         <i class="bi @(Model.IsDescending ? "bi-chevron-down" : "bi-chevron-up")"></i>
                     </a>
                 </th>
+                <th>Repository</th>
                 <th>Branch</th>
                 <th>Commit</th>
                 <th>Author</th>
@@ -44,6 +46,7 @@
                         <partial name="_UrgentIdentifier" model="report.Urgent" />
                     </td>
                     <td>@report.CreatedAt.ToDisplayDate()</td>
+                    <td>@report.Repo</td>
                     <td>@report.Branch</td>
                     <td>
                         @report.CommitSha.Substring(0, 5)
@@ -58,7 +61,7 @@
                     @* <td>@report.Error?.Message</td> *@
                 </tr>
                 <tr>
-                    <td class="p-0" colspan="7">
+                    <td class="p-0" colspan="8">
                         <div id="accordion_@(report.Id)" class="collapse">
                             <div class="p-2">
                                 <partial name="_CommitDetails" model="@report" />

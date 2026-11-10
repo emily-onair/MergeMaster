@@ -28,19 +28,19 @@ public class RepoStore(ReportDb db)
             .ToListAsync(ct);
     }
 
-    public async Task<int> UpdateOwnerAsync(string newOwner, string oldOwner)
+    public async Task<int> UpdateOwnerAsync(string newOwner, int id)
     {
         return await db.Repos
-            .Where(r => r.Owner == oldOwner)
+            .Where(r => r.Id == id)
             .ExecuteUpdateAsync(r => r
                 .SetProperty(u => u.Owner, newOwner)
                 .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow));
     }
 
-    public async Task<int> UpdateRepoNameAsync(string newName, string oldName)
+    public async Task<int> UpdateRepoNameAsync(string newName, int id)
     {
         return await db.Repos
-            .Where(r => r.Repository == oldName)
+            .Where(r => r.Id == id)
             .ExecuteUpdateAsync(r => r
                 .SetProperty(u => u.Repository, newName)
                 .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow));

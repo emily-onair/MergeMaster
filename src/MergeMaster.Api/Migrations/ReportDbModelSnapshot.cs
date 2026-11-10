@@ -145,6 +145,30 @@ namespace MergeMaster.Api.Migrations
                     b.ToTable("Reports");
                 });
 
+            modelBuilder.Entity("MergeMaster.Api.DAL.Models.SyncFlagEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DetectedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FlagType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReportId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportId", "FlagType")
+                        .IsUnique();
+
+                    b.ToTable("SyncFlags");
+                });
+
             modelBuilder.Entity("MergeMaster.Api.DAL.Models.TagEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -215,6 +239,15 @@ namespace MergeMaster.Api.Migrations
                     b.Navigation("Branch");
                 });
 
+            modelBuilder.Entity("MergeMaster.Api.DAL.Models.SyncFlagEntity", b =>
+                {
+                    b.HasOne("MergeMaster.Api.DAL.Models.ReportEntity", null)
+                        .WithMany("SyncFlags")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ReportEntityTagEntity", b =>
                 {
                     b.HasOne("MergeMaster.Api.DAL.Models.ReportEntity", null)
@@ -228,6 +261,11 @@ namespace MergeMaster.Api.Migrations
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MergeMaster.Api.DAL.Models.ReportEntity", b =>
+                {
+                    b.Navigation("SyncFlags");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,4 +6,16 @@
 
 <h1>Merge Queue</h1>
 <p><a href="/archive">See archive</a></p>
+
+<partial name="_SyncButtonWithUpdates"
+    model="Model.SyncUpdates" />
+
 <partial name="_ReportsPageLayout" model="Model" />
+
+@* uncomment to have toasts automatically fade after 5 seconds *@
+@* @section Scripts {
+    <script>
+        document.querySelectorAll('.toast').forEach(el =>
+            bootstrap.Toast.getOrCreateInstance(el).show());
+    </script>
+} *@
