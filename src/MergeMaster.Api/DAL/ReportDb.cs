@@ -11,6 +11,7 @@ public sealed class ReportDb(DbContextOptions<ReportDb> options)
     public DbSet<BranchEntity> Branches => Set<BranchEntity>();
     public DbSet<RepoEntity> Repos => Set<RepoEntity>();
     public DbSet<TagEntity> Tags => Set<TagEntity>();
+    public DbSet<SyncFlagEntity> SyncFlags => Set<SyncFlagEntity>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -33,6 +34,11 @@ public sealed class ReportDb(DbContextOptions<ReportDb> options)
             report.HasMany(r => r.Tags)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("ReportTags"));
+
+            report.HasMany(r => r.SyncFlags)
+                .WithOne()
+                .HasForeignKey(f => f.ReportId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         model.Entity<RepoEntity>(repo => {
@@ -63,6 +69,12 @@ public sealed class ReportDb(DbContextOptions<ReportDb> options)
         {
             tag.Property(r => r.Name).UseCollation("NOCASE");
             tag.HasIndex(t => t.Name).IsUnique();
+        });
+
+        model.Entity<SyncFlagEntity>(flag =>
+        {
+            flag.Property(f => f.FlagType).HasConversion<string>();
+            flag.HasIndex(f => new { f.ReportId, f.FlagType }).IsUnique();
         });
     }
 }

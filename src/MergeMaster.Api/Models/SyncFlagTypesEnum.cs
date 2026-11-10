@@ -1,11 +1,10 @@
 namespace MergeMaster.Api.Models;
 
-public enum ReportSyncFlagTypes
+public enum SyncFlagTypes
 {
     RepoDoesNotExist,
     BranchDoesNotExist,
     CommitDoesNotExist,
     CommitNotOnBranch,
-    CommitAlreadyMerged,
-    Other
+    CommitAlreadyMerged
 }

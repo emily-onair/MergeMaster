@@ -13,14 +13,19 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
-    public async Task<GitHubResult<bool>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<string>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}");
+            using var response = await http.GetAsync($"https://api.github.com/repos/{ownerRepo}", ct);
             if (!response.IsSuccessStatusCode)
-                return await ErrorResultAsync<bool>(response, unavailableAllowed);
-            return GitHubResult<bool>.Success(true);
+                return await ErrorResultAsync<string>(response, unavailableAllowed);
+            var json = await response.Content.ReadFromJsonAsync<Repo>(Json, ct);
+            if (json is not null)
+                return GitHubResult<string>.Success(json.FullName);
+            return GitHubResult<string>.Fail(new HttpError(
+                HttpStatusCode.UnprocessableContent,
+                "Problem retrieving branch"));
         }, unavailableAllowed, ct);
     }
 
@@ -28,7 +33,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"/repos/{ownerRepo}/branches/{branch}");
+            using var response = await http.GetAsync($"/repos/{ownerRepo}/branches/{branch}", ct);
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<string>(response, unavailableAllowed);
             var json = await response.Content.ReadFromJsonAsync<Branch>(Json, ct);
@@ -44,7 +49,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}");
+            using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<bool>(response, unavailableAllowed);
             return GitHubResult<bool>.Success(true);

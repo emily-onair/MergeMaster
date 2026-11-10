@@ -15,7 +15,7 @@ public class ReportEntity : ReportBase
     public DateTime? ArchivedAtUtc { get; set; }
     // public int RepositoryId {get; set;}
 
-    // public List<ReportSyncFlagEntity> SyncFlags { get; set; } = [];
+    public List<SyncFlagEntity> SyncFlags { get; set; } = [];
     public Report ToReport() => new()
     {
         Id = Id,

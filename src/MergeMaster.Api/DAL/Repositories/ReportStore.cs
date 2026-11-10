@@ -1,6 +1,5 @@
 namespace MergeMaster.Api.DAL.Repositories;
 
-using System.Linq.Expressions;
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +39,6 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
         return await db.Reports.AsNoTracking()
             .Populate()
             .Select(r => r.ToReport())
-            // .Include(Repository) // joins to other table in db
             .ToListAsync(ct);
     }
 

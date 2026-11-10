@@ -12,6 +12,7 @@ public class BranchStore(ReportDb db)
         return await db.Branches
             .Where(b => reports.Any(r => r.BranchId == b.Id))
             .Select(b => b.Name)
+            .Distinct()
             .OrderBy(n => n)
             .ToListAsync(ct);
     }

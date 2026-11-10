@@ -10,7 +10,7 @@ public interface IGitHubApi
 
     public Task<GitHubResult<ResultCommit>> GetCommitDetails(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct);
 
-    public Task<GitHubResult<bool>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct);
+    public Task<GitHubResult<string>> CheckForRepoExistence(string ownerRepo, bool unavailableAllowed, CancellationToken ct);
     public Task<GitHubResult<string>> CheckForBranchExistence(string ownerRep0, string branch, bool unavailableAllowed, CancellationToken ct);
     public Task<GitHubResult<bool>> CheckForCommitExistence(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct);
 }
