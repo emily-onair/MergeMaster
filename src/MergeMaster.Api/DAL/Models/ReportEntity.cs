@@ -28,6 +28,8 @@ public class ReportEntity : ReportBase
         AuthorName = Author.Name,
         Urgent = Urgent,
         Tags = [.. Tags.Select(t => t.Name)],
+        Flags = [.. SyncFlags.Select(f => 
+            new ReportFlag(new DateTimeOffset(f.DetectedAtUtc), f.FlagType))],
         // Notes = Notes,
         UpdatedAt = UpdatedAtUtc is null ? null : new DateTimeOffset(UpdatedAtUtc.Value, TimeSpan.Zero),
         ArchivedAt = ArchivedAtUtc is null ? null : new DateTimeOffset(ArchivedAtUtc.Value, TimeSpan.Zero)

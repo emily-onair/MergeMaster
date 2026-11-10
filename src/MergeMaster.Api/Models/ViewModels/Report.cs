@@ -8,6 +8,7 @@ public sealed class Report : ReportBase
     public string Branch { get; set; } = "";
     public string Repo { get; set; } = "";
     public List<string> Tags { get; set; } = [];
+    public List<ReportFlag> Flags { get; set; } = [];
     public DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset? CommitDate { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }

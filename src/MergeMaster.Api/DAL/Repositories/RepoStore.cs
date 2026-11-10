@@ -23,8 +23,6 @@ public class RepoStore(ReportDb db)
 
         return await db.Repos
             .Where(r => reports.Any(rp => rp.Branch.RepoId == r.Id))
-            .Select(r => r)
-            .OrderBy(n => n)
             .ToListAsync(ct);
     }
 
