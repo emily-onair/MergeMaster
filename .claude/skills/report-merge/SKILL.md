@@ -5,7 +5,7 @@ description: Use this skill when the user wants to report their current branch a
 ## Repository facts (collected automatically)
 - Current branch: !`git branch --show-current`
 - Last commit author: !`git log -1 --format="%ae"`
-- Current git user: !`git config user.email || echo "not set"`
+- Current git user: !`git config --get user.email || echo "not set"`
 - Uncommitted changes: !`git status --porcelain | head -20`
 - Commits on this branch: !`git log --oneline origin/main..HEAD 2>/dev/null || echo "could not compare with origin/main"`
 - Files changed: !`git diff --stat origin/main...HEAD 2>/dev/null || echo "could not compare with origin/main"`
@@ -31,6 +31,6 @@ description: Use this skill when the user wants to report their current branch a
 - other: only use this tag when **no other tags** apply.
 
 
-6. Once you have the details, pass them as arguments to the companion script `.claude/skills/report-merge/report-merge.sh`.
+6. Once you have the details, pass them as arguments to the companion script `.claude/skills/report-merge/report-merge.sh`, e.g. `bash report-merge.sh false "bugfix,docs"`.
 
 7. Display the API's response to the user.

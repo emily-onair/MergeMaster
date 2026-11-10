@@ -1,4 +1,4 @@
-@model string
+@model List<string>
 
 @{
     var categoryClasses = new Dictionary<string, string>
@@ -16,7 +16,7 @@
 }
 
 <div>
-    @foreach (var category in Model.Split(","))
+    @foreach (var category in Model)
     {
         var cssClass = categoryClasses.TryGetValue(category, out var c)
             ? c : "text-bg-secondary";
