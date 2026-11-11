@@ -2,12 +2,23 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models;
+using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace MergeMaster.Api.DAL.Repositories;
 
 public class SyncFlagStore(ReportDb db)
 {
+    public async Task<List<ReportFlag>> FindByReportAsync(int reportId, CancellationToken ct)
+    {
+        return await db.SyncFlags.AsNoTracking()
+            .Where(f => f.ReportId == reportId)
+            .OrderByDescending(f => f.DetectedAtUtc)
+            .Select(f => new ReportFlag(
+                new DateTimeOffset(f.DetectedAtUtc, TimeSpan.Zero),
+                f.FlagType
+            )).ToListAsync(ct);
+    }
     public async Task AddSingleAsync(SyncFlagEntity newFlag, CancellationToken ct)
     {
         db.SyncFlags.Add(newFlag);

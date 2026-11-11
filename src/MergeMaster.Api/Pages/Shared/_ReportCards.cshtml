@@ -16,6 +16,7 @@
             <div class="card-body">
                 <div class="pb-2 d-flex gap-2 align-items-baseline justify-content-between">
                     <partial name="_UrgentIdentifier" model="report.Urgent" />
+                    <partial name="_FlagIdentifier" model="report" />
                     <partial name="_TagBadges" model="report.Tags" />
                     <i class="card-subtitle text-muted ms-auto">@report.CreatedAt.ToDisplayDate()</i>
                 </div>

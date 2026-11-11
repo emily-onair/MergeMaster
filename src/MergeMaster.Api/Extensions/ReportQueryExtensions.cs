@@ -7,7 +7,8 @@ internal static class ReportQueryExtensions
         .Include(r => r.Branch).ThenInclude(b => b.Repo)
         .Include(r => r.Author)
         .Include(r => r.Tags)
-        .Include(r => r.SyncFlags);
+        .Include(r => r.SyncFlags)
+        .AsSplitQuery();
 
     public static IQueryable<ReportEntity> InArchive(this IQueryable<ReportEntity> query, bool archived) =>
         archived

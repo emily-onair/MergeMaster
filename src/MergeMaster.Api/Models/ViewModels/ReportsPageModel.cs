@@ -9,7 +9,6 @@ namespace MergeMaster.Api.Models.ViewModels;
 public abstract class ReportsPageModel(ReportStore store) : PageModel
 {
     protected ReportStore Store { get; } = store;
-
     public abstract bool IsArchive { get; }
     // Name = "" binds without a prefix: ?IsUrgentOnly=true instead of ?Filter.IsUrgentOnly=true.
     [BindProperty(SupportsGet = true, Name = "")]
@@ -26,6 +25,15 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
         Results = await LoadReportsAsync(ct);
         DropdownOptions = await Store.FindDropdownOptionsAsync(IsArchive, ct);
     }
+
+    public async Task<IActionResult> OnGetFlagsAsync(
+        int id, [FromServices] SyncFlagStore flagStore, CancellationToken ct)
+        // [FromServices] method injection from DI container (scoped/singleton)
+    {
+        var flags = await flagStore.FindByReportAsync(id, ct);
+        return Partial("_ModalContentFlags", flags);
+    }
+
 
     private async Task<PaginationResult> LoadReportsAsync(CancellationToken ct)
     {

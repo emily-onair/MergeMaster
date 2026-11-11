@@ -23,6 +23,19 @@ else
     <partial name="_PaginationControls"
         model="new PaginationControlViewModel(Model.Results, Model.PageUrl)" />
 
+
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalTitle"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+
     <script>
         async function copyToClipboard(text) {
             try {

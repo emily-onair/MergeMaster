@@ -5,6 +5,7 @@
 <div class="table-responsive d-none d-sm-block">
     <table class="table table-hover">
         <colgroup>
+            <col style="width: 2rem">       @* collapse control *@
             <col style="width: 3.5rem" />   @* urgent *@
             <col style="width: 13%" />      @* date *@
             <col />                         @* repo *@
@@ -12,15 +13,15 @@
             <col style="width: 10%" />      @* commit sha *@
             <col style="width: 15%" />      @* author *@
             <col style="width: 15%" />      @* tags *@
-            <col style="width: 3.5rem" />     @* actions *@
-            @* <col style="width: 15%" />      error *@
+            <col style="width: 3.5rem" />   @* actions *@
         </colgroup>
         <thead>
             <tr>
+                <th> @* collapse control *@</th>
                 <th>@* urgent *@</th>
                 <th class="d-flex gap-1">
                     Date
-                    <a class="btn btn-sm p-0"
+                    <a class="btn btn-icon p-0"
                         href="@Model.SortUrl"
                         title="Toggle sort direction">
                         <i class="bi @(Model.IsDescending ? "bi-chevron-down" : "bi-chevron-up")"></i>
@@ -32,24 +33,30 @@
                 <th>Author</th>
                 <th></th>
                 <th></th>
-                @* <th></th> *@
             </tr>
         </thead>
         <tbody>
             @foreach (var report in Model.Reports)
             {
-                <tr 
-                    class="clickable" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#accordion_@(report.Id)">
+                <tr>
+                    <td>
+                        <button 
+                            class="btn btn-icon p-0 row-expand collapsed bi bi-chevron-down"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion_@(report.Id)"
+                            aria-expanded="false"
+                            aria-controls="accordion_@(report.Id)"
+                            aria-label="Show commit details">
+                        </button>
+                    </td>
                     <td>
                         <partial name="_UrgentIdentifier" model="report.Urgent" />
-                        <partial name="_FlagIdentifier" model="report.Flags" />
+                        <partial name="_FlagIdentifier" model="report" />
                     </td>
                     <td>@report.CreatedAt.ToDisplayDate()</td>
                     <td>@report.Repo</td>
                     <td>@report.Branch</td>
-                    <td>
+                    <td title="@report.CommitSha">
                         @report.CommitSha.Substring(0, 5)
                     </td>
                     <td>@report.AuthorName</td>
@@ -59,10 +66,9 @@
                     <td>
                         <partial name="_ReportActions" model="new ReportActionsViewModel(report.Id, Model.IsArchive)" />
                     </td>
-                    @* <td>@report.Error?.Message</td> *@
                 </tr>
                 <tr>
-                    <td class="p-0" colspan="8">
+                    <td class="p-0" colspan="9">
                         <div id="accordion_@(report.Id)" class="collapse">
                             <div class="p-2">
                                 <partial name="_CommitDetails" model="@report" />

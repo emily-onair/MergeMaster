@@ -18,7 +18,7 @@
                 value="true" 
                 checked="@Model.FilterOptions.IsUrgentOnly" 
                 onchange="this.form.submit()" />
-            <label class="form-check-label" for="IsUrgentOnly" title="Urgent only">
+            <label class="form-check-label" for="IsUrgentOnly" title="Urgent only" aria-label="filter urgent only reports">
                 <partial name="_UrgentIdentifier" model="true" />
             </label>
         </div>
