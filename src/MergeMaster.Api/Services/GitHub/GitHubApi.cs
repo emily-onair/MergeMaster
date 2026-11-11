@@ -17,21 +17,13 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"/repos/{owner}/{repo}", ct);
+            using var initial = await http.GetAsync($"/repos/{owner}/{repo}", ct);
+            using var redirected = initial.StatusCode == HttpStatusCode.MovedPermanently // owner or repo changed - follow redirect
+                && initial.Headers.Location is { } location
+                    ? await http.GetAsync(location, ct)
+                    : null;
 
-            if (response.StatusCode == HttpStatusCode.MovedPermanently // owner or repo changed - follow redirect for new data
-                && response.Headers.Location is not null)
-            {
-                using var redirectedResponse = await http.GetAsync(response.Headers.Location, ct);
-                if (!redirectedResponse.IsSuccessStatusCode)
-                    return await ErrorResultAsync<string>(redirectedResponse, unavailableAllowed);
-                var redirectJson = await redirectedResponse.Content.ReadFromJsonAsync<Repo>(Json, ct);
-                return redirectJson is not null
-                    ? GitHubResult<string>.Success(redirectJson.FullName)
-                    : GitHubResult<string>.Fail(new HttpError(
-                    HttpStatusCode.UnprocessableContent,
-                    "Problem retrieving repository"));
-            }
+            var response = redirected ?? initial;
 
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<string>(response, unavailableAllowed);
@@ -48,7 +40,14 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
     {
         return await NetworkGuardAsync(async () =>
         {
-            using var response = await http.GetAsync($"/repos/{owner}/{repo}/branches/{branch}", ct);
+            using var initial = await http.GetAsync($"/repos/{owner}/{repo}/branches/{branch}", ct);
+            using var redirected = initial.StatusCode == HttpStatusCode.MovedPermanently // owner or repo changed - follow redirect
+                && initial.Headers.Location is { } location
+                    ? await http.GetAsync(location, ct)
+                    : null;
+
+            var response = redirected ?? initial;
+
             if (!response.IsSuccessStatusCode)
                 return await ErrorResultAsync<string>(response, unavailableAllowed);
             var json = await response.Content.ReadFromJsonAsync<Branch>(Json, ct);
@@ -101,7 +100,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
                     new HttpError(HttpStatusCode.BadRequest, 
                     $"Commit {commit} has already been merged into main"));
 
-            // check for squash merge - only shows if performed via pull request
+            // check for squash merge - only shows if performed via pull request - requires additional token permission
             // using var resPulls = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}/pulls", ct);
             // if (!resPulls.IsSuccessStatusCode)
             //     return await ErrorResultAsync<bool>(resPulls, unavailableAllowed);

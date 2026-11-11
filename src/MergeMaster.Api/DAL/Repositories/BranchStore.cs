@@ -5,6 +5,17 @@ namespace MergeMaster.Api.DAL.Repositories;
 
 public class BranchStore(ReportDb db)
 {
+
+    public async Task<bool> UpdateNameAsync(string newName, int id, CancellationToken ct)
+    {
+        var updated = await db.Branches
+            .Where(b => b.Id == id)
+            .ExecuteUpdateAsync(b => b
+                .SetProperty(u => u.Name, newName)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct);
+        
+        return updated > 0;
+    }
     public async Task<List<string>> GetNamesAsync(bool archived, CancellationToken ct)
     {
         var reports = db.Reports.InArchive(archived);
