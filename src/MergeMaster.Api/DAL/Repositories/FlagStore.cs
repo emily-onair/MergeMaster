@@ -32,7 +32,7 @@ public class SyncFlagStore(ReportDb db)
 
         db.SyncFlags.AddRange(newFlags);
         await db.SaveChangesAsync(ct);
-        return affectedReportIds.Count();
+        return affectedReportIds.Count;
     }
 }
 

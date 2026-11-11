@@ -52,7 +52,7 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
             if (branchExists.Error?.StatusCode == HttpStatusCode.NotFound)
             {
                 var updated = await flags.AddManyAsync(SyncFlagTypes.BranchDoesNotExist, 
-                    b => b.Id == branch.Id, ct);
+                    r => r.Branch.Id == branch.Id, ct);
                 if (updated > 0)
                 {
                     updates.Add(new SyncUpdate(false, true, 
