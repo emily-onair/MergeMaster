@@ -30,15 +30,49 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
         return report.ToReport();
     }
 
+    public async Task<bool> DeleteAsync(int id, CancellationToken ct)
+    {
+        var toDelete = await db.Reports.FindAsync([id], ct);
+        if (toDelete is not null) 
+        {
+            db.Reports.Remove(toDelete);
+            await db.SaveChangesAsync(ct);
+            return true;
+        }
+        return false;
+    }
+
+    public async Task<bool> ArchiveAsync(int id, CancellationToken ct)
+    {
+        var updated = await db.Reports
+            .Where(r => r.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.ArchivedAtUtc, DateTime.UtcNow)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
+        return updated > 0;
+    }
+
+    public async Task<bool> RestoreFromArchiveAsync(int id, CancellationToken ct)
+    {
+        var updated = await db.Reports
+            .Where(r => r.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
+        return updated > 0;
+    }
+
     public async Task<bool> FindDuplicateAsync(string commit, CancellationToken ct) =>
         await db.Reports.AnyAsync(r => r.CommitSha == commit, ct);
 
-    public async Task<IReadOnlyList<Report>> FindAllAsync(CancellationToken ct)
+    public async Task<List<ReportEntity>> FindForSyncAsync(CancellationToken ct)
     {
-        // TODO: validation can be here as private method
-        return await db.Reports.AsNoTracking()
-            .Populate()
-            .Select(r => r.ToReport())
+        var query = db.Reports.InArchive(false);
+
+        return await query.AsNoTracking()
+            .Include(r => r.Branch)
+            .ThenInclude(b => b.Repo)
+            .Include(r => r.SyncFlags)
             .ToListAsync(ct);
     }
 
@@ -91,38 +125,6 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
             .Populate()
             .FirstOrDefaultAsync(r => r.Id == id, ct);
         return report?.ToReport();
-    }
-
-    public async Task<bool> DeleteAsync(int id, CancellationToken ct)
-    {
-        var toDelete = await db.Reports.FindAsync([id], ct);
-        if (toDelete is not null) 
-        {
-            db.Reports.Remove(toDelete);
-            await db.SaveChangesAsync(ct);
-            return true;
-        }
-        return false;
-    }
-
-    public async Task<bool> ArchiveAsync(int id, CancellationToken ct)
-    {
-        var updated = await db.Reports
-            .Where(r => r.Id == id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.ArchivedAtUtc, DateTime.UtcNow)
-                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
-        return updated > 0;
-    }
-
-    public async Task<bool> RestoreFromArchiveAsync(int id, CancellationToken ct)
-    {
-        var updated = await db.Reports
-            .Where(r => r.Id == id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.ArchivedAtUtc, (DateTime?)null)
-                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct); 
-        return updated > 0;
     }
 
     public async Task<DropdownOptionLists> FindDropdownOptionsAsync(bool archived, CancellationToken ct)

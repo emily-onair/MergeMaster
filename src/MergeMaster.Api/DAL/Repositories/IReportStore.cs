@@ -7,7 +7,7 @@ namespace MergeMaster.Api.DAL.Repositories;
 public interface IReportStore
 {
     // find methods
-    public Task<IReadOnlyList<Report>> FindAllAsync(CancellationToken ct);
+    public Task<List<ReportEntity>> FindForSyncAsync(CancellationToken ct);
     public Task<PaginationResult> FindAllFilteredPagesAsync(
         bool archived, bool? descending, bool? urgentOnly, List<string> authors, 
         List<string> tags, string? search, int page, int pageSize, CancellationToken ct);

@@ -10,7 +10,7 @@ using MergeMaster.Api.Services.GitHub.Models;
 namespace MergeMaster.Api.Services;
 
 public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
-    RepoStore repos, BranchStore branches) : IReportSyncService
+    RepoStore repos, BranchStore branches, ReportStore reports) : IReportSyncService
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
@@ -29,12 +29,78 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
         var branchSyncCompleted = await SyncBranchesAsync(branchList, updates, ct);
         if (!branchSyncCompleted)
             return updates;
+
+        var reportList = await reports.FindForSyncAsync(ct);
+        var commitSyncCompleted = await SyncCommitsAsync(reportList, updates, ct);
+        if (!commitSyncCompleted)
+            return updates;
+        
         
         updates.Add(new SyncUpdate(false, false, "Database synchronization completed"));
         return updates;
     }
 
-    private async Task<bool> SyncBranchesAsync(List<BranchEntity> branchList, List<SyncUpdate> updates, CancellationToken ct)
+    private async Task<bool> SyncCommitsAsync(
+        List<ReportEntity> reportList, List<SyncUpdate> updates, CancellationToken ct)
+    {
+        foreach(var report in reportList)
+        {
+            // save api tokens by avoiding pointless requests
+            if (report.SyncFlags.Any(f => 
+                f.FlagType == SyncFlagTypes.RepoDoesNotExist
+                || f.FlagType == SyncFlagTypes.CommitDoesNotExist
+                || f.FlagType == SyncFlagTypes.CommitAlreadyMerged))
+                continue;
+
+            var toastPrefix = $"Commit {report.CommitSha[..5]} from branch {report.Branch.Name}" 
+                + $" on {report.Branch.Repo.Repository}";
+
+            var commitMerged = await github.CheckForCommitAlreadyMerged(
+                $"{report.Branch.Repo.Owner}/{report.Branch.Repo.Repository}",
+                report.CommitSha, false, ct);
+            
+            // main should always exist, 404 can only mean commit not found
+            if (commitMerged.Error?.StatusCode == HttpStatusCode.NotFound)
+            {
+                updates.Add(new SyncUpdate(false, true, $"{toastPrefix} does not exist."));
+                await flags.AddSingleAsync(report.Id, SyncFlagTypes.CommitDoesNotExist, ct);
+                continue;
+            }
+
+            // already merged
+            if (commitMerged.Error?.StatusCode == HttpStatusCode.BadRequest)
+            {
+                updates.Add(new SyncUpdate(false, true, $"{toastPrefix} has already been merged."));
+                    await flags.AddSingleAsync(report.Id, SyncFlagTypes.CommitAlreadyMerged, ct);
+                continue;
+            }
+
+            if (!ErrorChecks(commitMerged, [HttpStatusCode.NotFound, HttpStatusCode.BadRequest], updates)) 
+                return false;
+
+            // save api tokens by avoiding pointless requests
+            if (report.SyncFlags.Any(f => 
+                f.FlagType == SyncFlagTypes.CommitNotOnBranch
+                || f.FlagType == SyncFlagTypes.BranchDoesNotExist))
+                continue;
+            
+            var onBranch = await github.CheckForCommitOnBranchAsync(
+                $"{report.Branch.Repo.Owner}/{report.Branch.Repo.Repository}",
+                report.Branch.Name, report.CommitSha, false, ct);
+
+            if (onBranch.Error?.StatusCode == HttpStatusCode.BadRequest)
+            {
+                updates.Add(new SyncUpdate(false, true, $"{toastPrefix} is not on its branch."));
+                await flags.AddSingleAsync(report.Id, SyncFlagTypes.CommitNotOnBranch, ct);
+            }
+
+            if (!ErrorChecks(onBranch, [HttpStatusCode.BadRequest], updates)) return false;
+        }
+        return true;
+    }
+
+    private async Task<bool> SyncBranchesAsync(
+        List<BranchEntity> branchList, List<SyncUpdate> updates, CancellationToken ct)
     {
         foreach (var branch in branchList)
         {
@@ -66,7 +132,8 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
         return true;
     }
 
-    private async Task<bool> SyncReposAsync(List<RepoEntity> repoList, List<SyncUpdate> updates, CancellationToken ct)
+    private async Task<bool> SyncReposAsync(
+        List<RepoEntity> repoList, List<SyncUpdate> updates, CancellationToken ct)
     {
         foreach (RepoEntity repo in repoList)
         {
@@ -87,6 +154,7 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
                 if (repo.Repository != newRepoName)
                 {
                     var updated = await repos.UpdateRepoNameAsync(newRepoName, repo.Id, ct);
+                    if (updated)
                         updates.Add(new SyncUpdate(false, false, $"{toastPrefix} name: {newRepoName}"));
                 }
             }
@@ -108,7 +176,8 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
         return true;
     }
 
-    private static bool ErrorChecks<T>(GitHubResult<T> result, IEnumerable<HttpStatusCode> ignoreCodes, List<SyncUpdate> updates)
+    private static bool ErrorChecks<T>(
+        GitHubResult<T> result, IEnumerable<HttpStatusCode> ignoreCodes, List<SyncUpdate> updates)
     {
         if (result.IsUnavailable)
         {

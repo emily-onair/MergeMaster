@@ -19,8 +19,14 @@ public class SyncFlagStore(ReportDb db)
                 f.FlagType
             )).ToListAsync(ct);
     }
-    public async Task AddSingleAsync(SyncFlagEntity newFlag, CancellationToken ct)
+    public async Task AddSingleAsync(int reportId, SyncFlagTypes type, CancellationToken ct)
     {
+        var newFlag = new SyncFlagEntity()
+        {
+            ReportId = reportId,
+            FlagType = type,
+            DetectedAtUtc = DateTime.UtcNow
+        };
         db.SyncFlags.Add(newFlag);
         await db.SaveChangesAsync(ct);
     }

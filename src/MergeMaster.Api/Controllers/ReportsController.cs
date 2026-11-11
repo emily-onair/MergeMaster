@@ -12,14 +12,14 @@ namespace MergeMaster.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class ReportsController(GitHubApi github, ReportStore store) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAllReports(CancellationToken ct)
-    {
-        var reports = await store.FindAllAsync(ct);
-        // TODO: revalidate each row before sending to frontend
-        // TODO: pagination 
-        return Ok(reports);
-    }
+    // [HttpGet]
+    // public async Task<IActionResult> GetAllReports(CancellationToken ct)
+    // {
+    //     var reports = await store.FindAllAsync(ct);
+    //     // TODO: revalidate each row before sending to frontend
+    //     // TODO: pagination 
+    //     return Ok(reports);
+    // }
 
     [HttpPost("add")]
     public async Task<IActionResult> AddAsync(AddReportRequestBody body, CancellationToken ct)
