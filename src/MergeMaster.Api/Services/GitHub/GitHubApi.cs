@@ -13,7 +13,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
-    public async Task<GitHubResult<string>> CheckForRepoExistence(string owner, string repo, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<string>> CheckForRepoExistenceAsync(string owner, string repo, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
@@ -36,7 +36,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<string>> CheckForBranchExistence(string owner, string repo, string branch, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<string>> CheckForBranchExistenceAsync(string owner, string repo, string branch, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
@@ -59,7 +59,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<bool>> CheckForCommitExistence(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForCommitExistenceAsync(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () =>
         {
@@ -85,7 +85,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<bool>> CheckForCommitAlreadyMerged(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<bool>> CheckForCommitAlreadyMergedAsync(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
     {  
         return await NetworkGuardAsync(async () => {
             // check if commit exists on main branch
@@ -117,7 +117,7 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
         }, unavailableAllowed, ct);
     }
 
-    public async Task<GitHubResult<ResultCommit>> GetCommitDetails(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
+    public async Task<GitHubResult<ResultCommit>> GetCommitDetailsAsync(string ownerRepo, string commit, bool unavailableAllowed, CancellationToken ct)
     {
         return await NetworkGuardAsync(async () => {
             using var response = await http.GetAsync($"/repos/{ownerRepo}/commits/{commit}", ct);
@@ -196,6 +196,5 @@ public sealed class GitHubApi(HttpClient http) : IGitHubApi
                     "GitHub could not be reached"
                     ), true);
         }
-
     }
 }

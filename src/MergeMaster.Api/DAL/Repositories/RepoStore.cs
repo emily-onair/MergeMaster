@@ -48,6 +48,8 @@ public class RepoStore(ReportDb db) : IRepoStore
 
         return updated > 0;
     }
+
+    /// <inheritdoc/>
     public async Task<RepoEntity> GetOrCreateAsync(string owner, string repository, CancellationToken ct)
     {
         owner = owner.Trim();

@@ -39,6 +39,7 @@ public class BranchStore(ReportDb db) : IBranchStore
             .ToListAsync(ct);
     }
     
+    /// <inheritdoc/>
     public async Task<BranchEntity> GetOrCreateAsync(RepoEntity repo, string name, CancellationToken ct)
     {
         name = name.Trim();

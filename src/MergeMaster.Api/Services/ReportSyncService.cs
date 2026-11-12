@@ -12,10 +12,6 @@ namespace MergeMaster.Api.Services;
 public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
     IRepoStore repos, IBranchStore branches, IReportStore reports) : IReportSyncService
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-    };
     public async Task<List<SyncUpdate>> SyncWithGitHubAsync(CancellationToken ct)
     {
         var updates = new List<SyncUpdate>();
@@ -55,7 +51,7 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
             var toastPrefix = $"Commit {report.CommitSha[..5]} from branch {report.Branch.Name}" 
                 + $" on {report.Branch.Repo.Repository}";
 
-            var commitMerged = await github.CheckForCommitAlreadyMerged(
+            var commitMerged = await github.CheckForCommitAlreadyMergedAsync(
                 $"{report.Branch.Repo.Owner}/{report.Branch.Repo.Repository}",
                 report.CommitSha, false, ct);
             
@@ -104,7 +100,7 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
     {
         foreach (var branch in branchList)
         {
-            var branchExists = await github.CheckForBranchExistence(
+            var branchExists = await github.CheckForBranchExistenceAsync(
                 branch.Repo.Owner, branch.Repo.Repository, branch.Name, false, ct);
             
             if (branchExists.Value is not null && branchExists.Value != branch.Name)
@@ -136,7 +132,7 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
     {
         foreach (RepoEntity repo in repoList)
         {
-            var repoExists = await github.CheckForRepoExistence(repo.Owner, repo.Repository, false, ct);
+            var repoExists = await github.CheckForRepoExistenceAsync(repo.Owner, repo.Repository, false, ct);
             
             if (repoExists.Value is not null && repoExists.Value != $"{repo.Owner}/{repo.Repository}")
             {

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Extensions;
 using MergeMaster.Api.DAL.Interfaces;
+using MergeMaster.Api.DAL.Models;
 
 namespace MergeMaster.Api.Models.ViewModels;
 
@@ -38,16 +38,15 @@ public abstract class ReportsPageModel(IReportStore store) : PageModel
 
     private async Task<PaginationResult> LoadReportsAsync(CancellationToken ct)
     {
-        return await Store.FilterAsync(
-            archived: IsArchive, 
-            descending: FilterOptions.IsDescending, 
-            urgentOnly: FilterOptions.IsUrgentOnly, 
-            authors: FilterOptions.SelectedAuthors, 
-            tags: FilterOptions.SelectedTags, 
-            search: FilterOptions.SearchValue, 
-            page: PageNumber,
-            pageSize: PageSize,
-            ct);
+        return await Store.FilterAsync(new FilterQueryParams(
+        Archived: IsArchive,
+        Descending: FilterOptions.IsDescending,
+        UrgentOnly: FilterOptions.IsUrgentOnly,
+        Authors: FilterOptions.SelectedAuthors,
+        Tags: FilterOptions.SelectedTags,
+        Search: FilterOptions.SearchValue,
+        Page: PageNumber,
+        PageSize: PageSize), ct);
     }
 
     public string PageUrl(int pageNumber) => Request.UpdateQueryString(("PageNumber", pageNumber.ToString()));

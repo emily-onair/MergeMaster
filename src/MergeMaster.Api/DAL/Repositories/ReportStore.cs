@@ -77,17 +77,16 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
             .ToListAsync(ct);
     }
 
-    public async Task<PaginationResult> FilterAsync(
-        bool archived, bool? descending, bool? urgentOnly, List<string> authors, 
-        List<string> tags, string? search, int page, int pageSize, CancellationToken ct)
+    public async Task<PaginationResult> FilterAsync(FilterQueryParams queryParams, 
+        CancellationToken ct)
     {
-        var query = db.Reports.InArchive(archived);
+        var query = db.Reports.InArchive(queryParams.Archived);
 
-        if (urgentOnly is true) query = query.Where(r => r.Urgent);
+        if (queryParams.UrgentOnly is true) query = query.Where(r => r.Urgent);
         
-        if (authors.Count > 0) query = query.Where(r => authors.Contains(r.Author.Name));
+        if (queryParams.Authors.Count > 0) query = query.Where(r => queryParams.Authors.Contains(r.Author.Name));
 
-        var searchTerm = search?.Trim();
+        var searchTerm = queryParams.Search?.Trim();
         if (!string.IsNullOrEmpty(searchTerm)) {
             searchTerm = searchTerm.ToLowerInvariant();
             // pragma to suppress warning for string comparison
@@ -99,9 +98,9 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
             #pragma warning restore CA1862
         }
 
-        if (tags.Count > 0) query = query.Where(r => r.Tags.Any(t => tags.Contains(t.Name)));
+        if (queryParams.Tags.Count > 0) query = query.Where(r => r.Tags.Any(t => queryParams.Tags.Contains(t.Name)));
 
-        query = descending is true
+        query = queryParams.Descending is true
             ? query.OrderByDescending(r => r.CreatedAtUtc)
             : query.OrderBy(r => r.CreatedAtUtc);
 
@@ -113,11 +112,11 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
 
         var filteredReports = await query.AsNoTracking()
             .Populate()
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((queryParams.Page - 1) * queryParams.PageSize)
+            .Take(queryParams.PageSize)
             .Select(r => r.ToReport())
             .ToListAsync(ct);
-        return new PaginationResult(filteredReports, total, page, pageSize);
+        return new PaginationResult(filteredReports, total, queryParams.Page, queryParams.PageSize);
     }
 
     public async Task<Report?> FindByIdAsync(int id, CancellationToken ct)
@@ -138,7 +137,7 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
         );
     }
 
-    public async Task<List<string>> GetCommitsAsync(bool archived, CancellationToken ct)
+    private async Task<List<string>> GetCommitsAsync(bool archived, CancellationToken ct)
     {
         var query = db.Reports.InArchive(archived);
         return await query.Select(r => r.CommitSha)

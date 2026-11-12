@@ -37,11 +37,11 @@ public sealed class ReportsController(IGitHubApi github, IReportStore store) : C
                 statusCode: (int)isCommitOnBranch.Error.StatusCode, 
                 detail: isCommitOnBranch.Error.Message);
 
-        var IsAlreadyMerged = await github.CheckForCommitAlreadyMerged(ownerRepo, body.CommitSha, true, ct);
-        if (!IsAlreadyMerged.Proceed)
+        var isAlreadyMerged = await github.CheckForCommitAlreadyMergedAsync(ownerRepo, body.CommitSha, true, ct);
+        if (!isAlreadyMerged.Proceed)
             return Problem(
-                statusCode: (int)IsAlreadyMerged.Error.StatusCode, 
-                detail: IsAlreadyMerged.Error.Message);
+                statusCode: (int)isAlreadyMerged.Error.StatusCode, 
+                detail: isAlreadyMerged.Error.Message);
 
         var newReport = new NewReport(
             CreatedAtUtc: DateTime.UtcNow,
@@ -55,7 +55,7 @@ public sealed class ReportsController(IGitHubApi github, IReportStore store) : C
             CommitDateUtc: body.CommitDate.UtcDateTime
         );
 
-        var missingDetails = await github.GetCommitDetails(ownerRepo, body.CommitSha, true, ct);
+        var missingDetails = await github.GetCommitDetailsAsync(ownerRepo, body.CommitSha, true, ct);
         if (!missingDetails.Proceed)
             return Problem(
                 statusCode: (int)missingDetails.Error.StatusCode, 
