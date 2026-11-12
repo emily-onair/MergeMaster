@@ -32,11 +32,16 @@ public class SyncFlagStore(ReportDb db) : ISyncFlagStore
         await db.SaveChangesAsync(ct);
     }
 
-    public async Task<int> AddManyAsync(SyncFlagTypes type, 
+    public async Task<int> AddForRepoAsync(int repoId, SyncFlagTypes type, CancellationToken ct) => 
+        await AddManyAsync(type, r => r.Branch.RepoId == repoId, ct);
+    public async Task<int> AddForBranchAsync(int branchId, SyncFlagTypes type, CancellationToken ct) =>
+        await AddManyAsync(type, r => r.BranchId == branchId, ct);
+    private async Task<int> AddManyAsync(SyncFlagTypes type, 
         Expression<Func<ReportEntity, bool>> selector, CancellationToken ct)
     {
-        var affectedReportIds = await db.Reports.Where(selector)
+        var affectedReportIds = await db.Reports
             .InArchive(false)
+            .Where(selector)
             .Where(r => !r.SyncFlags.Any(f => f.FlagType == type))
             .Select(r => r.Id)
             .ToListAsync(ct);

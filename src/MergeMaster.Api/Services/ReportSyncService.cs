@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.DAL.Interfaces;
-using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Models.ViewModels;
 using MergeMaster.Api.Services.GitHub;
@@ -118,8 +117,7 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
 
             if (branchExists.Error?.StatusCode == HttpStatusCode.NotFound)
             {
-                var updated = await flags.AddManyAsync(SyncFlagTypes.BranchDoesNotExist, 
-                    r => r.Branch.Id == branch.Id, ct);
+                var updated = await flags.AddForBranchAsync(branch.Id, SyncFlagTypes.BranchDoesNotExist, ct);
                 if (updated > 0)
                 {
                     updates.Add(new SyncUpdate(false, true, 
@@ -162,13 +160,10 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
 
             if (repoExists.Error?.StatusCode == HttpStatusCode.NotFound)
             {
-                var updated = await flags.AddManyAsync(SyncFlagTypes.RepoDoesNotExist, 
-                    r => r.Branch.RepoId == repo.Id, ct);
+                var updated = await flags.AddForRepoAsync(repo.Id, SyncFlagTypes.RepoDoesNotExist, ct);
                 if (updated > 0)
-                {
                     updates.Add(new SyncUpdate(false, true, 
                         $"{updated} reports flagged for non-existent repository: {repo.Owner}/{repo.Repository}"));
-                }
             } 
             
             // break early if something went wrong
