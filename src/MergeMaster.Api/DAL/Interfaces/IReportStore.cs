@@ -18,4 +18,5 @@ public interface IReportStore
     Task<bool> DeleteAsync(int id, CancellationToken ct);
     Task<bool> ArchiveAsync(int id, CancellationToken ct);
     Task<bool> RestoreFromArchiveAsync(int id, CancellationToken ct);
+    Task UpdateCommitMessageAsync(int id, string message, CancellationToken ct);
 }

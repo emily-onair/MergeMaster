@@ -63,6 +63,15 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
         return updated > 0;
     }
 
+    public async Task UpdateCommitMessageAsync(int id, string message, CancellationToken ct)
+    {
+        await db.Reports
+            .Where(r => r.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.CommitMessage, message)
+                .SetProperty(u => u.UpdatedAtUtc, DateTime.UtcNow), ct);
+    }
+
     public async Task<bool> CheckIfExistsAsync(string commit, CancellationToken ct) =>
         await db.Reports.AnyAsync(r => r.CommitSha == commit, ct);
 

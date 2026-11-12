@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.Models;
@@ -41,6 +40,17 @@ public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
     {
         foreach(var report in reportList)
         {
+            // if commit message is empty, find it
+            if (string.IsNullOrEmpty(report.CommitMessage))
+            {
+                var details = await github.GetCommitDetailsAsync(
+                    $"{report.Branch.Repo.Owner}/{report.Branch.Repo.Repository}",
+                    report.CommitSha, false, ct);
+                if (details.Value is not null)
+                    await reports.UpdateCommitMessageAsync(report.Id, details.Value.Commit.Message, ct);
+                if (!ErrorChecks(details, [], updates)) return false;
+            }
+
             // save api tokens by avoiding pointless requests
             if (report.SyncFlags.Any(f => 
                 f.FlagType == SyncFlagTypes.RepoDoesNotExist
