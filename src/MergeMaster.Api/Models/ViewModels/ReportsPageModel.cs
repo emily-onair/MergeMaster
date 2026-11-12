@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Extensions;
+using MergeMaster.Api.DAL.Interfaces;
 
 namespace MergeMaster.Api.Models.ViewModels;
 
-public abstract class ReportsPageModel(ReportStore store) : PageModel
+public abstract class ReportsPageModel(IReportStore store) : PageModel
 {
-    protected ReportStore Store { get; } = store;
+    protected IReportStore Store { get; } = store;
     public abstract bool IsArchive { get; }
     // Name = "" binds without a prefix: ?IsUrgentOnly=true instead of ?Filter.IsUrgentOnly=true.
     [BindProperty(SupportsGet = true, Name = "")]
@@ -23,21 +24,21 @@ public abstract class ReportsPageModel(ReportStore store) : PageModel
     public async Task OnGetAsync(CancellationToken ct)
     {
         Results = await LoadReportsAsync(ct);
-        DropdownOptions = await Store.FindDropdownOptionsAsync(IsArchive, ct);
+        DropdownOptions = await Store.GetDropdownOptionsAsync(IsArchive, ct);
     }
 
     public async Task<IActionResult> OnGetFlagsAsync(
-        int id, [FromServices] SyncFlagStore flagStore, CancellationToken ct)
+        int id, [FromServices] ISyncFlagStore flagStore, CancellationToken ct)
         // [FromServices] method injection from DI container (scoped/singleton)
     {
-        var flags = await flagStore.FindByReportAsync(id, ct);
+        var flags = await flagStore.GetByReportAsync(id, ct);
         return Partial("_ModalContentFlags", flags);
     }
 
 
     private async Task<PaginationResult> LoadReportsAsync(CancellationToken ct)
     {
-        return await Store.FindAllFilteredPagesAsync(
+        return await Store.FilterAsync(
             archived: IsArchive, 
             descending: FilterOptions.IsDescending, 
             urgentOnly: FilterOptions.IsUrgentOnly, 

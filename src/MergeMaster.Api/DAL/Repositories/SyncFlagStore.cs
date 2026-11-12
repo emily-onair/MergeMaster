@@ -1,15 +1,16 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
+using MergeMaster.Api.DAL.Interfaces;
 
 namespace MergeMaster.Api.DAL.Repositories;
 
-public class SyncFlagStore(ReportDb db)
+public class SyncFlagStore(ReportDb db) : ISyncFlagStore
 {
-    public async Task<List<ReportFlag>> FindByReportAsync(int reportId, CancellationToken ct)
+    public async Task<List<ReportFlag>> GetByReportAsync(int reportId, CancellationToken ct)
     {
         return await db.SyncFlags.AsNoTracking()
             .Where(f => f.ReportId == reportId)
@@ -35,6 +36,7 @@ public class SyncFlagStore(ReportDb db)
         Expression<Func<ReportEntity, bool>> selector, CancellationToken ct)
     {
         var affectedReportIds = await db.Reports.Where(selector)
+            .InArchive(false)
             .Where(r => !r.SyncFlags.Any(f => f.FlagType == type))
             .Select(r => r.Id)
             .ToListAsync(ct);
@@ -52,5 +54,3 @@ public class SyncFlagStore(ReportDb db)
         return affectedReportIds.Count;
     }
 }
-
-// Expression<Func<ReportEntity, string>> selector

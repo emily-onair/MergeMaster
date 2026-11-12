@@ -1,9 +1,10 @@
+using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MergeMaster.Api.DAL.Repositories;
 
-public class RepoStore(ReportDb db)
+public class RepoStore(ReportDb db) : IRepoStore
 {
     public async Task<List<string>> GetNamesAsync(bool archived, CancellationToken ct)
     {
@@ -17,9 +18,9 @@ public class RepoStore(ReportDb db)
             .ToListAsync(ct);
     }
 
-    public async Task<List<RepoEntity>> GetReposAsync(bool archived, CancellationToken ct)
+    public async Task<List<RepoEntity>> GetActiveEntitiesAsync(CancellationToken ct)
     {
-        var reports = db.Reports.InArchive(archived);
+        var reports = db.Reports.InArchive(false);
 
         return await db.Repos
             .Where(r => reports.Any(rp => rp.Branch.RepoId == r.Id))
@@ -37,7 +38,7 @@ public class RepoStore(ReportDb db)
         return updated > 0;
     }
 
-    public async Task<bool> UpdateRepoNameAsync(string newName, int id, CancellationToken ct)
+    public async Task<bool> UpdateNameAsync(string newName, int id, CancellationToken ct)
     {
         var updated = await db.Repos
             .Where(r => r.Id == id)

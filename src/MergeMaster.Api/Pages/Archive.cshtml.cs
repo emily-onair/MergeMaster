@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models.ViewModels;
+using MergeMaster.Api.DAL.Interfaces;
 
 namespace MergeMaster.Api.Pages;
 
-public class ArchivedModel(ReportStore store) : ReportsPageModel(store)
+public class ArchivedModel(IReportStore store) : ReportsPageModel(store)
 {
     public override bool IsArchive => true;
 

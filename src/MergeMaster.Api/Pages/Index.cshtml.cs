@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 
-using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models.ViewModels;
 using MergeMaster.Api.Services;
 using System.Text.Json;
+using MergeMaster.Api.DAL.Interfaces;
 
 namespace MergeMaster.Api.Pages;
 
-public sealed class IndexModel(ReportStore store, IReportSyncService syncService) : ReportsPageModel(store)
+public sealed class IndexModel(IReportStore store, IReportSyncService syncService) : ReportsPageModel(store)
 {
     public override bool IsArchive => false;
     [TempData]

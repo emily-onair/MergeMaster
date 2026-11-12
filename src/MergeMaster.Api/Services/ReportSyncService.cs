@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using MergeMaster.Api.DAL.Models;
+using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Models.ViewModels;
@@ -9,8 +10,8 @@ using MergeMaster.Api.Services.GitHub.Models;
 
 namespace MergeMaster.Api.Services;
 
-public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
-    RepoStore repos, BranchStore branches, ReportStore reports) : IReportSyncService
+public class ReportSyncService (IGitHubApi github, ISyncFlagStore flags,
+    IRepoStore repos, IBranchStore branches, IReportStore reports) : IReportSyncService
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
@@ -20,17 +21,17 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
     {
         var updates = new List<SyncUpdate>();
 
-        var repoList = await repos.GetReposAsync(false, ct);
+        var repoList = await repos.GetActiveEntitiesAsync(ct);
         var repoSyncCompleted = await SyncReposAsync(repoList, updates, ct);
         if (!repoSyncCompleted)
             return updates;
         
-        var branchList = await branches.GetBranchesAsync(false, ct);
+        var branchList = await branches.GetActiveEntitiesAsync(ct);
         var branchSyncCompleted = await SyncBranchesAsync(branchList, updates, ct);
         if (!branchSyncCompleted)
             return updates;
 
-        var reportList = await reports.FindForSyncAsync(ct);
+        var reportList = await reports.GetActiveEntitiesAsync(ct);
         var commitSyncCompleted = await SyncCommitsAsync(reportList, updates, ct);
         if (!commitSyncCompleted)
             return updates;
@@ -153,7 +154,7 @@ public class ReportSyncService (GitHubApi github, SyncFlagStore flags,
                 }
                 if (repo.Repository != newRepoName)
                 {
-                    var updated = await repos.UpdateRepoNameAsync(newRepoName, repo.Id, ct);
+                    var updated = await repos.UpdateNameAsync(newRepoName, repo.Id, ct);
                     if (updated)
                         updates.Add(new SyncUpdate(false, false, $"{toastPrefix} name: {newRepoName}"));
                 }

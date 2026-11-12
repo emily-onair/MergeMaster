@@ -1,9 +1,10 @@
+using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MergeMaster.Api.DAL.Repositories;
 
-public class BranchStore(ReportDb db)
+public class BranchStore(ReportDb db) : IBranchStore
 {
 
     public async Task<bool> UpdateNameAsync(string newName, int id, CancellationToken ct)
@@ -28,9 +29,9 @@ public class BranchStore(ReportDb db)
             .ToListAsync(ct);
     }
 
-    public async Task<List<BranchEntity>> GetBranchesAsync(bool archived, CancellationToken ct)
+    public async Task<List<BranchEntity>> GetActiveEntitiesAsync(CancellationToken ct)
     {
-        var reports = db.Reports.InArchive(archived);
+        var reports = db.Reports.InArchive(false);
 
         return await db.Branches
             .Include(b => b.Repo)

@@ -1,10 +1,11 @@
 namespace MergeMaster.Api.DAL.Repositories;
 
+using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branches,
+public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore branches,
     AuthorStore authors, TagStore tags) : IReportStore
 {
     public async Task<Report> AddAsync(NewReport newReport, CancellationToken ct)
@@ -62,10 +63,10 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
         return updated > 0;
     }
 
-    public async Task<bool> FindDuplicateAsync(string commit, CancellationToken ct) =>
+    public async Task<bool> CheckIfExistsAsync(string commit, CancellationToken ct) =>
         await db.Reports.AnyAsync(r => r.CommitSha == commit, ct);
 
-    public async Task<List<ReportEntity>> FindForSyncAsync(CancellationToken ct)
+    public async Task<List<ReportEntity>> GetActiveEntitiesAsync(CancellationToken ct)
     {
         var query = db.Reports.InArchive(false);
 
@@ -76,7 +77,7 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
             .ToListAsync(ct);
     }
 
-    public async Task<PaginationResult> FindAllFilteredPagesAsync(
+    public async Task<PaginationResult> FilterAsync(
         bool archived, bool? descending, bool? urgentOnly, List<string> authors, 
         List<string> tags, string? search, int page, int pageSize, CancellationToken ct)
     {
@@ -127,17 +128,17 @@ public sealed class ReportStore(ReportDb db, RepoStore repos, BranchStore branch
         return report?.ToReport();
     }
 
-    public async Task<DropdownOptionLists> FindDropdownOptionsAsync(bool archived, CancellationToken ct)
+    public async Task<DropdownOptionLists> GetDropdownOptionsAsync(bool archived, CancellationToken ct)
     {
         return new DropdownOptionLists(
             Authors: await authors.GetNamesAsync(archived, ct),
             Tags: await tags.GetNamesAsync(archived, ct),
             Branches: await branches.GetNamesAsync(archived, ct),
-            Commits: await FindCommitsAsync(archived, ct)
+            Commits: await GetCommitsAsync(archived, ct)
         );
     }
 
-    public async Task<List<string>> FindCommitsAsync(bool archived, CancellationToken ct)
+    public async Task<List<string>> GetCommitsAsync(bool archived, CancellationToken ct)
     {
         var query = db.Reports.InArchive(archived);
         return await query.Select(r => r.CommitSha)

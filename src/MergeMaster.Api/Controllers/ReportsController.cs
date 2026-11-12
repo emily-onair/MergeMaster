@@ -3,21 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 
 using MergeMaster.Api.Services.GitHub;
 using MergeMaster.Api.Models.Requests;
-using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.DAL.Models;
+using MergeMaster.Api.DAL.Interfaces;
 
 namespace MergeMaster.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ReportsController(GitHubApi github, ReportStore store) : ControllerBase
+public sealed class ReportsController(IGitHubApi github, IReportStore store) : ControllerBase
 {
     // [HttpGet]
     // public async Task<IActionResult> GetAllReports(CancellationToken ct)
     // {
     //     var reports = await store.FindAllAsync(ct);
     //     // TODO: revalidate each row before sending to frontend
-    //     // TODO: pagination 
     //     return Ok(reports);
     // }
 
@@ -26,7 +25,7 @@ public sealed class ReportsController(GitHubApi github, ReportStore store) : Con
     {
         Console.WriteLine($"REQUEST BODY: {body}");
 
-        var isDuplicate = await store.FindDuplicateAsync(body.CommitSha, ct);
+        var isDuplicate = await store.CheckIfExistsAsync(body.CommitSha, ct);
         if (isDuplicate)
             return Problem(statusCode: 400, detail: "A report already exists for this commit");
 

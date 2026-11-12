@@ -1,11 +1,12 @@
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
-
-using MergeMaster.Api.Services.GitHub;
 using Microsoft.EntityFrameworkCore;
-using MergeMaster.Api.DAL.Repositories;
+
 using MergeMaster.Api.DAL;
+using MergeMaster.Api.DAL.Interfaces;
+using MergeMaster.Api.DAL.Repositories;
 using MergeMaster.Api.Services;
+using MergeMaster.Api.Services.GitHub;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,7 @@ builder.Services.AddOptions<DbOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddHttpClient<GitHubApi>((sp, http) =>
+builder.Services.AddHttpClient<IGitHubApi, GitHubApi>((sp, http) =>
 {
     var gh = sp.GetRequiredService<IOptions<GitHubOptions>>().Value;
     http.BaseAddress = new Uri(gh.BaseUrl);
@@ -38,12 +39,12 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddProblemDetails();
 
-builder.Services.AddScoped<ReportStore>();
-builder.Services.AddScoped<RepoStore>();
-builder.Services.AddScoped<BranchStore>();
+builder.Services.AddScoped<IReportStore, ReportStore>();
+builder.Services.AddScoped<IRepoStore, RepoStore>();
+builder.Services.AddScoped<IBranchStore, BranchStore>();
 builder.Services.AddScoped<AuthorStore>();
 builder.Services.AddScoped<TagStore>();
-builder.Services.AddScoped<SyncFlagStore>();
+builder.Services.AddScoped<ISyncFlagStore, SyncFlagStore>();
 
 builder.Services.AddScoped<IReportSyncService, ReportSyncService>();
 
