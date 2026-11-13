@@ -5,6 +5,7 @@ using MergeMaster.Api.DAL.Models;
 using MergeMaster.Api.Models;
 using MergeMaster.Api.Models.ViewModels;
 using MergeMaster.Api.DAL.Interfaces;
+using MergeMaster.Api.Extensions;
 
 namespace MergeMaster.Api.DAL.Repositories;
 

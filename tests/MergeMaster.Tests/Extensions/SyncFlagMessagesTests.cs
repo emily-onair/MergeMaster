@@ -1,7 +1,7 @@
 using MergeMaster.Api.Extensions;
 using MergeMaster.Api.Models;
 
-namespace MergeMaster.Tests;
+namespace MergeMaster.Tests.Extensions;
 
 public class SyncFlagMessagesTests
 {

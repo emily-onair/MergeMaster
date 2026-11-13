@@ -19,7 +19,6 @@ public sealed class ReportDb(DbContextOptions<ReportDb> options)
         {
             report.HasIndex(r => r.CommitSha)
                 .IsUnique();
-            // report.HasQueryFilter(r => r.ArchivedAtUtc == null);
 
             report.HasOne(r => r.Author)
                 .WithMany()

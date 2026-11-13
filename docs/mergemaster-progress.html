@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>MergeMaster Progress</title>
+<script>
+  // Pick the language before the page paints, so the wrong one never flashes.
+  // Order: ?lang= in the URL, then the viewer's saved choice, then the browser language.
+  (function () {
+    var supported = ["en", "de"];
+    function pick() {
+      try {
+        var q = new URLSearchParams(location.search).get("lang");
+        if (q && supported.indexOf(q) > -1) return q;
+      } catch (e) {}
+      try {
+        var s = localStorage.getItem("mergemaster-lang");
+        if (s && supported.indexOf(s) > -1) return s;
+      } catch (e) {}
+      var n = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+      return n.toLowerCase().indexOf("de") === 0 ? "de" : "en";
+    }
+    var lang = pick();
+    document.documentElement.setAttribute("data-lang", lang);
+    document.documentElement.lang = lang;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --text: #1f2328;
+    --muted: #5b6370;
+    --border: #e3e3de;
+    --accent: #2f6f5e;
+    --accent-soft: #e6f0ec;
+    --warn: #8a5a00;
+    --warn-soft: #fbf1dc;
+    --code-bg: #f1f1ed;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16181b;
+      --surface: #1e2125;
+      --text: #e6e6e3;
+      --muted: #a0a6ae;
+      --border: #30343a;
+      --accent: #7cc4ad;
+      --accent-soft: #1f322c;
+      --warn: #e7b65c;
+      --warn-soft: #33291a;
+      --code-bg: #262a2f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181b;
+    --surface: #1e2125;
+    --text: #e6e6e3;
+    --muted: #a0a6ae;
+    --border: #30343a;
+    --accent: #7cc4ad;
+    --accent-soft: #1f322c;
+    --warn: #e7b65c;
+    --warn-soft: #33291a;
+    --code-bg: #262a2f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    hyphens: auto;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { margin-bottom: 40px; }
+  .eyebrow { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  h1 { font-size: 32px; line-height: 1.2; margin: 0 0 16px; }
+  .lede { font-size: 18px; margin: 0; }
+  h2 {
+    font-size: 20px;
+    margin: 40px 0 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code {
+    font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0 8px;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .step b { display: block; color: var(--accent); font-size: 14px; margin-bottom: 4px; }
+  .step span { font-size: 14px; color: var(--muted); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+  .tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .note {
+    background: var(--warn-soft);
+    border-left: 3px solid var(--warn);
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+  }
+  .note li::marker { color: var(--warn); }
+  footer { margin-top: 48px; color: var(--muted); font-size: 14px; }
+
+  /* Language switching */
+  :root[data-lang="en"] .lang-de,
+  :root[data-lang="de"] .lang-en { display: none; }
+  /* Without JS both languages show, one after the other, and the switch is hidden. */
+  :root:not([data-lang]) .lang-switch { display: none; }
+  :root:not([data-lang]) .lang-de { margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border); }
+  .lang-switch { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 16px; }
+  .lang-switch button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .lang-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 26px; }
+    .flow { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="lang-switch" role="group" aria-label="Language / Sprache">
+    <button type="button" data-set-lang="en" aria-label="English" aria-pressed="false">EN</button>
+    <button type="button" data-set-lang="de" aria-label="Deutsch" aria-pressed="false">DE</button>
+  </div>
+
+  <!-- ===================== ENGLISH ===================== -->
+  <div class="lang-en" lang="en">
+    <header>
+      <p class="eyebrow">Progress update · November 2026</p>
+      <h1>MergeMaster</h1>
+      <p class="lede">A merge queue for our team. Developers report a commit as ready to merge from inside Claude Code. Marc works through the requests in a web dashboard that checks each one against GitHub.</p>
+      <p style="margin-top:12px;color:var(--muted)">The project had two goals: to learn C# and .NET, and to build something the team actually uses.</p>
+    </header>
+
+    <div class="flow" aria-label="How it works">
+      <div class="step"><b>1 · Developer</b><span>Runs the <code>report-merge</code> skill on a feature branch</span></div>
+      <div class="step"><b>2 · API</b><span>Checks the commit against GitHub and stores the report</span></div>
+      <div class="step"><b>3 · Marc</b><span>Reviews, filters and syncs the queue in the dashboard</span></div>
+    </div>
+
+    <h2>For developers: the report-merge skill</h2>
+    <p>The skill is added to a repo under <code>.claude/skills/</code>. Running it reports the current branch and its latest commit as ready to merge.</p>
+    <h3>Checks before anything is sent</h3>
+    <ul>
+      <li>It refuses to run on <code>main</code>.</li>
+      <li>It warns if the last commit was made by someone else.</li>
+      <li>It warns about uncommitted changes, which won't be part of the report.</li>
+    </ul>
+    <h3>What the developer provides</h3>
+    <p>One answer: whether the request is urgent. Claude works out everything else, including tagging the change by reading the commits and changed files:</p>
+    <div class="tags">
+      <span class="tag">bugfix</span><span class="tag">hotfix</span><span class="tag">feature</span>
+      <span class="tag">extend</span><span class="tag">security</span><span class="tag">chore</span>
+      <span class="tag">docs</span><span class="tag">claude</span><span class="tag">other</span>
+    </div>
+
+    <h2>Server-side checks on each report</h2>
+    <p>The API rejects a report if:</p>
+    <ul>
+      <li>a report already exists for that commit</li>
+      <li>the commit isn't on the reported branch</li>
+      <li>the commit has already been merged into <code>main</code></li>
+    </ul>
+    <p>For valid reports, it fetches the commit message from GitHub so the full message appears on the report.</p>
+
+    <h2>For Marc: the dashboard</h2>
+    <h3>Working the queue</h3>
+    <ul>
+      <li>Open requests can be viewed as a table or as cards.</li>
+      <li>Filter by urgent only, author and tags. Search, sort by date, and page through results.</li>
+      <li>Archive finished requests, then restore or delete them from the archive.</li>
+    </ul>
+    <h3>Sync with GitHub</h3>
+    <p>One button checks every open report against GitHub. It keeps stored names current and flags reports that have gone stale.</p>
+    <table>
+      <thead><tr><th>What it finds</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td>Repo or branch was renamed</td><td>The stored name is updated</td></tr>
+        <tr><td>Repo no longer exists</td><td rowspan="5">The report is flagged. Flags appear on the report, and a modal explains each one.</td></tr>
+        <tr><td>Branch no longer exists</td></tr>
+        <tr><td>Commit not found</td></tr>
+        <tr><td>Commit no longer on its branch</td></tr>
+        <tr><td>Commit already merged</td></tr>
+      </tbody>
+    </table>
+    <p>Toast messages summarise what each sync changed. Reports that are already flagged are skipped to save GitHub API calls. If GitHub can't be reached, the sync stops cleanly and says so.</p>
+
+    <h2>What I learned</h2>
+    <ul>
+      <li><b>ASP.NET Core</b>: Razor Pages for the dashboard and an API controller for the skill, organised as MVC with reusable partial views</li>
+      <li><b>EF Core with SQLite</b>: a schema across several tables (repos, branches, authors, tags, reports, sync flags), migrations, async queries</li>
+      <li><b>C# patterns</b>: dependency injection, options binding for configuration, records and <code>with</code> expressions, extension methods</li>
+      <li><b>Talking to GitHub</b>: a typed API client with a result/error pattern and a wrapper that handles network outages</li>
+      <li><b>Claude Code</b>: writing a skill with a companion shell script</li>
+    </ul>
+
+    <h2>Current status</h2>
+    <p>Everything above works locally. Before the team can use it:</p>
+    <div class="note">
+      <ul>
+        <li><b>Hosting.</b> The skill currently posts to <code>localhost</code>.</li>
+        <li><b>Access control.</b> The API and the dashboard have no authentication strategy.</li>
+        <li><b>Tests.</b> Automated coverage is still light. Most testing so far has been manual.</li>
+      </ul>
+    </div>
+    <h2>Next steps:</h2>
+    <ul>
+      <li><b>Unit tests</b> - I'm currently working through the Unit Tests module of my C# course and would like to thoroughly test the existing functionality before adding more features.</li>
+      <li><b>Notes</b> - Marc can save notes about a specific report (possibly also the skill could ask the developer to add any notes additional to the commit message).</li>
+      <li><b>CMS style editing</b> - the reports can be updated in the dashboard UI to address flags not automatically resolved.</li>
+    </ul>
+  </div>
+
+  <!-- ===================== DEUTSCH ===================== -->
+  <div class="lang-de" lang="de">
+    <header>
+      <p class="eyebrow">Fortschrittsbericht · November 2026</p>
+      <h1>MergeMaster</h1>
+      <p class="lede">Eine Merge-Queue für unser Team. Entwickler melden einen Commit direkt aus Claude Code als bereit zum Mergen. Marc arbeitet die Anfragen in einem Web-Dashboard ab, das jede einzelne gegen GitHub prüft.</p>
+      <p style="margin-top:12px;color:var(--muted)">Das Projekt hatte zwei Ziele: C# und .NET zu lernen und etwas zu bauen, das das Team tatsächlich nutzt.</p>
+    </header>
+
+    <div class="flow" aria-label="So funktioniert es">
+      <div class="step"><b>1 · Entwickler</b><span>Führt den <code>report-merge</code>-Skill auf einem Feature-Branch aus</span></div>
+      <div class="step"><b>2 · API</b><span>Prüft den Commit gegen GitHub und speichert die Meldung</span></div>
+      <div class="step"><b>3 · Marc</b><span>Prüft, filtert und synchronisiert die Queue im Dashboard</span></div>
+    </div>
+
+    <h2>Für Entwickler: der report-merge-Skill</h2>
+    <p>Der Skill wird einem Repo unter <code>.claude/skills/</code> hinzugefügt. Beim Ausführen meldet er den aktuellen Branch und dessen letzten Commit als bereit zum Mergen.</p>
+    <h3>Prüfungen, bevor etwas gesendet wird</h3>
+    <ul>
+      <li>Er lässt sich nicht auf <code>main</code> ausführen.</li>
+      <li>Er warnt, wenn der letzte Commit von jemand anderem stammt.</li>
+      <li>Er warnt vor nicht committeten Änderungen, die nicht Teil der Meldung sein werden.</li>
+    </ul>
+    <h3>Was der Entwickler angibt</h3>
+    <p>Eine einzige Antwort: ob die Anfrage dringend ist. Alles andere ermittelt Claude selbst, einschließlich der Tags für die Änderung, die es anhand der Commits und geänderten Dateien vergibt:</p>
+    <div class="tags">
+      <span class="tag">bugfix</span><span class="tag">hotfix</span><span class="tag">feature</span>
+      <span class="tag">extend</span><span class="tag">security</span><span class="tag">chore</span>
+      <span class="tag">docs</span><span class="tag">claude</span><span class="tag">other</span>
+    </div>
+
+    <h2>Serverseitige Prüfungen jeder Meldung</h2>
+    <p>Die API lehnt eine Meldung ab, wenn:</p>
+    <ul>
+      <li>für diesen Commit bereits eine Meldung existiert</li>
+      <li>der Commit nicht auf dem gemeldeten Branch liegt</li>
+      <li>der Commit bereits in <code>main</code> gemergt wurde</li>
+    </ul>
+    <p>Bei gültigen Meldungen ruft sie die Commit-Nachricht von GitHub ab, damit die vollständige Nachricht in der Meldung erscheint.</p>
+
+    <h2>Für Marc: das Dashboard</h2>
+    <h3>Die Queue abarbeiten</h3>
+    <ul>
+      <li>Offene Anfragen lassen sich als Tabelle oder als Karten anzeigen.</li>
+      <li>Filtern nach „nur dringend“, Autor und Tags. Suchen, nach Datum sortieren und durch die Ergebnisse blättern.</li>
+      <li>Erledigte Anfragen archivieren und sie anschließend aus dem Archiv wiederherstellen oder löschen.</li>
+    </ul>
+    <h3>Synchronisierung mit GitHub</h3>
+    <p>Ein einziger Button prüft jede offene Meldung gegen GitHub. Er hält gespeicherte Namen aktuell und markiert Meldungen, die veraltet sind.</p>
+    <table>
+      <thead><tr><th>Was gefunden wird</th><th>Was passiert</th></tr></thead>
+      <tbody>
+        <tr><td>Repo oder Branch wurde umbenannt</td><td>Der gespeicherte Name wird aktualisiert</td></tr>
+        <tr><td>Repo existiert nicht mehr</td><td rowspan="5">Die Meldung wird markiert. Markierungen erscheinen an der Meldung, und ein Modal erklärt jede einzelne.</td></tr>
+        <tr><td>Branch existiert nicht mehr</td></tr>
+        <tr><td>Commit nicht gefunden</td></tr>
+        <tr><td>Commit nicht mehr auf seinem Branch</td></tr>
+        <tr><td>Commit bereits gemergt</td></tr>
+      </tbody>
+    </table>
+    <p>Toast-Benachrichtigungen fassen zusammen, was jede Synchronisierung geändert hat. Bereits markierte Meldungen werden übersprungen, um GitHub-API-Aufrufe zu sparen. Ist GitHub nicht erreichbar, bricht die Synchronisierung sauber ab und weist darauf hin.</p>
+
+    <h2>Was ich gelernt habe</h2>
+    <ul>
+      <li><b>ASP.NET Core</b>: Razor Pages für das Dashboard und ein API-Controller für den Skill, aufgebaut nach MVC mit wiederverwendbaren Partial Views</li>
+      <li><b>EF Core mit SQLite</b>: ein Schema über mehrere Tabellen (Repos, Branches, Autoren, Tags, Meldungen, Sync-Markierungen), Migrationen, asynchrone Abfragen</li>
+      <li><b>C#-Muster</b>: Dependency Injection, Options-Binding für die Konfiguration, Records und <code>with</code>-Ausdrücke, Extension Methods</li>
+      <li><b>Kommunikation mit GitHub</b>: ein typisierter API-Client mit Result/Error-Muster und ein Wrapper, der Netzwerkausfälle abfängt</li>
+      <li><b>Claude Code</b>: einen Skill mit begleitendem Shell-Skript schreiben</li>
+    </ul>
+
+    <h2>Aktueller Stand</h2>
+    <p>Alles oben Beschriebene funktioniert lokal. Bevor das Team es nutzen kann:</p>
+    <div class="note">
+      <ul>
+        <li><b>Hosting.</b> Der Skill sendet derzeit an <code>localhost</code>.</li>
+        <li><b>Zugriffskontrolle.</b> Für die API und das Dashboard gibt es noch kein Authentifizierungskonzept.</li>
+        <li><b>Tests.</b> Die automatisierte Testabdeckung ist noch gering. Bisher wurde überwiegend manuell getestet.</li>
+      </ul>
+    </div>
+    <h2>Nächste Schritte:</h2>
+    <ul>
+      <li><b>Unit-Tests</b> – Ich arbeite gerade das Modul zu Unit-Tests in meinem C#-Kurs durch und möchte die bestehende Funktionalität gründlich testen, bevor weitere Features hinzukommen.</li>
+      <li><b>Notizen</b> – Marc kann Notizen zu einer bestimmten Meldung speichern (eventuell könnte auch der Skill den Entwickler bitten, zusätzlich zur Commit-Nachricht Notizen anzugeben).</li>
+      <li><b>Bearbeitung im CMS-Stil</b> – Meldungen können in der Dashboard-Oberfläche bearbeitet werden, um Markierungen zu beheben, die nicht automatisch aufgelöst werden.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var titles = { en: "MergeMaster Progress", de: "MergeMaster Fortschritt" };
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll("[data-set-lang]");
+
+    function apply(lang) {
+      root.setAttribute("data-lang", lang);
+      root.lang = lang;
+      document.title = titles[lang];
+      for (var i = 0; i < buttons.length; i++) {
+        var b = buttons[i];
+        b.setAttribute("aria-pressed", b.getAttribute("data-set-lang") === lang ? "true" : "false");
+      }
+    }
+
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function () {
+        var lang = this.getAttribute("data-set-lang");
+        apply(lang);
+        try { localStorage.setItem("mergemaster-lang", lang); } catch (e) {}
+      });
+    }
+
+    apply(root.getAttribute("data-lang") || "en");
+  })();
+</script>
+</body>
+</html>

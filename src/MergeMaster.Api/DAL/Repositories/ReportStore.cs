@@ -2,6 +2,7 @@ namespace MergeMaster.Api.DAL.Repositories;
 
 using MergeMaster.Api.DAL.Interfaces;
 using MergeMaster.Api.DAL.Models;
+using MergeMaster.Api.Extensions;
 using MergeMaster.Api.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -75,16 +76,13 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
     public async Task<bool> CheckIfExistsAsync(string commit, CancellationToken ct) =>
         await db.Reports.AnyAsync(r => r.CommitSha == commit, ct);
 
-    public async Task<List<ReportEntity>> GetActiveEntitiesAsync(CancellationToken ct)
-    {
-        var query = db.Reports.InArchive(false);
-
-        return await query.AsNoTracking()
+    public async Task<List<ReportEntity>> GetActiveEntitiesAsync(CancellationToken ct) =>
+        await db.Reports.AsNoTracking()
+            .InArchive(false)
             .Include(r => r.Branch)
             .ThenInclude(b => b.Repo)
             .Include(r => r.SyncFlags)
             .ToListAsync(ct);
-    }
 
     public async Task<PaginationResult> FilterAsync(FilterQueryParams queryParams, 
         CancellationToken ct)
@@ -146,12 +144,10 @@ public sealed class ReportStore(ReportDb db, IRepoStore repos, IBranchStore bran
         );
     }
 
-    private async Task<List<string>> GetCommitsAsync(bool archived, CancellationToken ct)
-    {
-        var query = db.Reports.InArchive(archived);
-        return await query.Select(r => r.CommitSha)
+    private async Task<List<string>> GetCommitsAsync(bool archived, CancellationToken ct) =>
+        await db.Reports.InArchive(archived)
+            .Select(r => r.CommitSha)
             .Distinct()
             .OrderBy(x => x)
             .ToListAsync(ct);
-    }
 }

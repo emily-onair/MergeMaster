@@ -1,7 +1,9 @@
 using MergeMaster.Api.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
-internal static class ReportQueryExtensions
+namespace MergeMaster.Api.Extensions;
+
+public static class ReportQueryExtensions
 {
     public static IQueryable<ReportEntity> Populate(this IQueryable<ReportEntity> query) => query
         .Include(r => r.Branch).ThenInclude(b => b.Repo)

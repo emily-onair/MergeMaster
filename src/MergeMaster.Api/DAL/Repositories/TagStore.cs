@@ -1,4 +1,5 @@
 using MergeMaster.Api.DAL.Models;
+using MergeMaster.Api.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MergeMaster.Api.DAL.Repositories;
